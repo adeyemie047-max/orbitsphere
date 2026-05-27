@@ -1,0 +1,19 @@
+{
+  "crons": [
+    {
+      "path": "/api/v1/cron/publish-scheduled",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/v1/health",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,367 @@
+// OrbitSphere — database schema per PRD §6
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  admin
+  editor
+  journalist
+  reader
+
+  @@map("user_role")
+}
+
+enum ArticleStatus {
+  draft
+  scheduled
+  published
+  archived
+
+  @@map("article_status")
+}
+
+enum NotificationType {
+  breaking
+  reply
+  recommendation
+
+  @@map("notification_type")
+}
+
+enum CitizenSubmissionStatus {
+  pending
+  reviewed
+  approved
+  rejected
+
+  @@map("citizen_submission_status")
+}
+
+enum AdPlacement {
+  banner
+  sidebar
+  inline
+  footer
+
+  @@map("ad_placement")
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique @db.VarChar(255)
+  emailVerified DateTime? @map("email_verified") @db.Timestamp(6)
+  passwordHash  String?   @map("password_hash")
+  fullName      String?   @map("full_name") @db.VarChar(255)
+  username      String?   @unique @db.VarChar(100)
+  role          UserRole  @default(reader)
+  avatarUrl     String?   @map("avatar_url")
+  bio           String?
+  isVerified    Boolean   @default(false) @map("is_verified")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  accounts            Account[]
+  sessions            Session[]
+  articles            Article[]
+  comments            Comment[]
+  bookmarks           Bookmark[]
+  notifications       Notification[]
+  passwordResetTokens PasswordResetToken[]
+  categoryFollows     UserCategoryFollow[]
+  pollVotes           PollVote[]
+  pushSubscriptions   PushSubscription[]
+  liveBlogEntries     LiveBlogEntry[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime @db.Timestamp(6)
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expires   DateTime @db.Timestamp(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model Category {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(100)
+  slug        String    @unique @db.VarChar(100)
+  description String?
+  color       String?   @db.VarChar(20)
+  icon        String?   @db.VarChar(50)
+  sortOrder   Int?      @map("sort_order")
+
+  articles Article[]
+  followers UserCategoryFollow[]
+
+  @@map("categories")
+}
+
+model Article {
+  id              String        @id @default(uuid()) @db.Uuid
+  title           String        @db.VarChar(500)
+  slug            String        @unique @db.VarChar(500)
+  excerpt         String?
+  body            String?
+  featuredImage   String?       @map("featured_image")
+  authorId        String        @map("author_id") @db.Uuid
+  categoryId      String        @map("category_id") @db.Uuid
+  status          ArticleStatus
+  isBreaking      Boolean       @default(false) @map("is_breaking")
+  isFeatured      Boolean       @default(false) @map("is_featured")
+  isInvestigative Boolean       @default(false) @map("is_investigative")
+  isLiveBlog      Boolean       @default(false) @map("is_live_blog")
+  viewsCount      Int           @default(0) @map("views_count")
+  readTime        Int?          @map("read_time")
+  publishedAt     DateTime?     @map("published_at") @db.Timestamp(6)
+  scheduledAt     DateTime?     @map("scheduled_at") @db.Timestamp(6)
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  author      User         @relation(fields: [authorId], references: [id])
+  category    Category     @relation(fields: [categoryId], references: [id])
+  comments    Comment[]
+  bookmarks   Bookmark[]
+  articleTags ArticleTag[]
+  polls       Poll[]
+  liveBlogEntries LiveBlogEntry[]
+
+  @@map("articles")
+}
+
+model Comment {
+  id          String   @id @default(uuid()) @db.Uuid
+  articleId   String   @map("article_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  parentId    String?  @map("parent_id") @db.Uuid
+  body        String?
+  isApproved  Boolean  @default(false) @map("is_approved")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  article  Article  @relation(fields: [articleId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  parent   Comment? @relation("CommentThread", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentThread")
+
+  @@map("comments")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  articleId String   @map("article_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@unique([userId, articleId])
+  @@map("bookmarks")
+}
+
+model Tag {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(100)
+  slug String @unique @db.VarChar(100)
+
+  articleTags ArticleTag[]
+
+  @@map("tags")
+}
+
+model ArticleTag {
+  articleId String @map("article_id") @db.Uuid
+  tagId     String @map("tag_id") @db.Uuid
+
+  article Article @relation(fields: [articleId], references: [id])
+  tag     Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([articleId, tagId])
+  @@map("article_tags")
+}
+
+model Newsletter {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  isActive     Boolean  @default(true) @map("is_active")
+  subscribedAt DateTime @default(now()) @map("subscribed_at") @db.Timestamp(6)
+
+  @@map("newsletters")
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  message   String?
+  link      String?
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model Poll {
+  id        String    @id @default(uuid()) @db.Uuid
+  question  String?
+  articleId String?   @map("article_id") @db.Uuid
+  endsAt    DateTime? @map("ends_at") @db.Timestamp(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  article Article?   @relation(fields: [articleId], references: [id])
+  options PollOption[]
+  votes   PollVote[]
+
+  @@map("polls")
+}
+
+model PollOption {
+  id         String @id @default(uuid()) @db.Uuid
+  pollId     String @map("poll_id") @db.Uuid
+  optionText String? @map("option_text") @db.VarChar(255)
+  voteCount  Int    @default(0) @map("vote_count")
+
+  poll  Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes PollVote[]
+
+  @@map("poll_options")
+}
+
+model PollVote {
+  id        String   @id @default(uuid()) @db.Uuid
+  pollId    String   @map("poll_id") @db.Uuid
+  optionId  String   @map("option_id") @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  voterKey  String   @map("voter_key") @db.VarChar(128)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user   User?      @relation(fields: [userId], references: [id])
+
+  @@unique([pollId, voterKey])
+  @@map("poll_votes")
+}
+
+model UserCategoryFollow {
+  userId     String   @map("user_id") @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, categoryId])
+  @@map("user_category_follows")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  endpoint  String   @unique @db.VarChar(500)
+  p256dh    String   @db.VarChar(255)
+  auth      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_subscriptions")
+}
+
+model LiveBlogEntry {
+  id          String   @id @default(uuid()) @db.Uuid
+  articleId   String   @map("article_id") @db.Uuid
+  authorId    String   @map("author_id") @db.Uuid
+  body        String
+  isPinned    Boolean  @default(false) @map("is_pinned")
+  publishedAt DateTime @default(now()) @map("published_at") @db.Timestamp(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@map("live_blog_entries")
+}
+
+model CitizenSubmission {
+  id            String                  @id @default(uuid()) @db.Uuid
+  submitterName String?                 @map("submitter_name") @db.VarChar(255)
+  email         String?                 @db.VarChar(255)
+  title         String?                 @db.VarChar(500)
+  body          String?
+  mediaUrl      String?                 @map("media_url")
+  status        CitizenSubmissionStatus
+  submittedAt   DateTime                @default(now()) @map("submitted_at") @db.Timestamp(6)
+
+  @@map("citizen_submissions")
+}
+
+model Advertisement {
+  id          String      @id @default(uuid()) @db.Uuid
+  title       String?     @db.VarChar(255)
+  imageUrl    String?     @map("image_url")
+  targetUrl   String?     @map("target_url")
+  placement   AdPlacement
+  isActive    Boolean     @map("is_active")
+  startsAt    DateTime?   @map("starts_at") @db.Timestamp(6)
+  endsAt      DateTime?   @map("ends_at") @db.Timestamp(6)
+  impressions Int         @default(0)
+  clicks      Int         @default(0)
+
+  @@map("advertisements")
+}

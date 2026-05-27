@@ -1,0 +1,37 @@
+{
+  "categories": [
+    "politics",
+    "metro",
+    "business",
+    "technology",
+    "education",
+    "agriculture",
+    "entertainment",
+    "sports",
+    "opinion",
+    "lifestyle",
+    "faith-culture"
+  ],
+  "articles": [
+    "nigeria-economic-renaissance",
+    "mtn-africa-record-revenue-growth",
+    "super-eagles-afcon-tactical-blueprint",
+    "senate-electoral-reform-bill",
+    "zenith-bank-q1-profit",
+    "flutterwave-series-d-funding",
+    "burna-boy-album-record",
+    "lagos-ibadan-rail-milestone",
+    "cbn-five-point-naira-plan",
+    "stem-scholarship-northern-girls",
+    "nigeria-rice-production-record",
+    "tinubu-cabinet-reshuffle",
+    "nass-budget-2026-recommendation",
+    "obi-atiku-alliance-2027",
+    "nigeria-structural-reform-opinion",
+    "au-silence-sudan-analysis",
+    "nigerian-millennials-quiet-ambition",
+    "osimhen-saudi-record-transfer",
+    "nigeria-tech-unicorns-rebuilding",
+    "dangote-refinery-first-year"
+  ]
+}
