@@ -1,11 +1,15 @@
 import LegalPageLayout, { legalMetadata } from "@/components/legal/LegalPageLayout";
+import LegalEmailLink from "@/components/legal/LegalEmailLink";
+import { getLegalContacts } from "@/lib/legal-contacts";
 
 export const metadata = legalMetadata(
   "Terms of Use",
   "Terms governing your use of OrbitSphere's website and services."
 );
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const contacts = await getLegalContacts();
+
   return (
     <LegalPageLayout
       title="Terms of Use"
@@ -54,10 +58,7 @@ export default function TermsPage() {
       <section>
         <h2 className="font-serif text-xl font-bold text-foreground mb-3">Contact</h2>
         <p>
-          Questions about these Terms:{" "}
-          <a href="mailto:legal@orbitsphere.ng" className="text-gold hover:underline">
-            legal@orbitsphere.ng
-          </a>
+          Questions about these Terms: <LegalEmailLink email={contacts.legal} />
         </p>
       </section>
     </LegalPageLayout>

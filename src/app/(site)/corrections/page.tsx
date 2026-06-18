@@ -1,11 +1,15 @@
 import LegalPageLayout, { legalMetadata } from "@/components/legal/LegalPageLayout";
+import LegalEmailLink from "@/components/legal/LegalEmailLink";
+import { getLegalContacts } from "@/lib/legal-contacts";
 
 export const metadata = legalMetadata(
   "Corrections Policy",
   "How OrbitSphere handles factual errors and editorial corrections."
 );
 
-export default function CorrectionsPage() {
+export default async function CorrectionsPage() {
+  const contacts = await getLegalContacts();
+
   return (
     <LegalPageLayout
       title="Corrections Policy"
@@ -16,11 +20,9 @@ export default function CorrectionsPage() {
         <h2 className="font-serif text-xl font-bold text-foreground mb-3">Reporting an error</h2>
         <p>
           If you believe we published inaccurate information, email{" "}
-          <a href="mailto:corrections@orbitsphere.ng" className="text-gold hover:underline">
-            corrections@orbitsphere.ng
-          </a>{" "}
-          with the article URL, the disputed passage, and supporting evidence. Our standards
-          desk reviews all requests within two business days.
+          <LegalEmailLink email={contacts.corrections} /> with the article URL, the disputed
+          passage, and supporting evidence. Our standards desk reviews all requests within two
+          business days.
         </p>
       </section>
       <section>

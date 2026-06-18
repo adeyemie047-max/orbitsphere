@@ -1,11 +1,15 @@
 import LegalPageLayout, { legalMetadata } from "@/components/legal/LegalPageLayout";
+import LegalEmailLink from "@/components/legal/LegalEmailLink";
+import { getLegalContacts } from "@/lib/legal-contacts";
 
 export const metadata = legalMetadata(
   "Privacy Policy",
   "How OrbitSphere collects, uses, and protects your personal information."
 );
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const contacts = await getLegalContacts();
+
   return (
     <LegalPageLayout
       title="Privacy Policy"
@@ -42,9 +46,7 @@ export default function PrivacyPage() {
         <h2 className="font-serif text-xl font-bold text-foreground mb-3">Your rights</h2>
         <p>
           You may request access, correction, or deletion of your account data by contacting{" "}
-          <a href="mailto:privacy@orbitsphere.ng" className="text-gold hover:underline">
-            privacy@orbitsphere.ng
-          </a>
+          <LegalEmailLink email={contacts.privacy} />
           . You can unsubscribe from marketing emails at any time.
         </p>
       </section>

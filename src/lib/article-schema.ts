@@ -18,6 +18,7 @@ export const articleBodySchema = z.object({
   isBreaking: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   isInvestigative: z.boolean().optional(),
+  submittedForReview: z.boolean().optional(),
 });
 
 export const articleUpdateSchema = articleBodySchema.partial().extend({

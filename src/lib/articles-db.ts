@@ -46,6 +46,7 @@ export function serializeArticle(article: ArticleWithRelations) {
     author: {
       id: article.author.id,
       name: article.author.fullName ?? "Unknown",
+      username: article.author.username,
       role: article.author.role,
       initials,
     },
@@ -347,5 +348,73 @@ export async function getAllPublishedSlugs() {
     select: { slug: true },
   });
   return articles.map((a) => a.slug);
+}
+
+export async function getAuthorByUsername(username: string) {
+  const user = await db.user.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      fullName: true,
+      username: true,
+      bio: true,
+      avatarUrl: true,
+      role: true,
+    },
+  });
+
+  if (!user || !["admin", "editor", "journalist"].includes(user.role)) {
+    return null;
+  }
+
+  const [articleCount, articles] = await Promise.all([
+    getAuthorArticleCount(user.id),
+    db.article.findMany({
+      where: { authorId: user.id, ...publicArticleWhere },
+      include: articleInclude,
+      orderBy: { publishedAt: "desc" },
+      take: 24,
+    }),
+  ]);
+
+  const initials = (user.fullName ?? user.username ?? "??")
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return {
+    id: user.id,
+    name: user.fullName ?? user.username ?? "Author",
+    username: user.username!,
+    bio: user.bio,
+    avatarUrl: user.avatarUrl,
+    role: user.role,
+    initials,
+    articleCount,
+    articles: articles.map(serializeArticle),
+  };
+}
+
+export async function getRecentArticlesForFeed(limit = 50) {
+  const articles = await db.article.findMany({
+    where: publicArticleWhere,
+    include: {
+      author: { select: { fullName: true } },
+      category: { select: { name: true, slug: true } },
+    },
+    orderBy: { publishedAt: "desc" },
+    take: limit,
+  });
+
+  return articles.map((a) => ({
+    title: a.title,
+    slug: a.slug,
+    excerpt: a.excerpt,
+    publishedAt: a.publishedAt,
+    authorName: a.author.fullName ?? "OrbitSphere",
+    categoryName: a.category.name,
+  }));
 }
 

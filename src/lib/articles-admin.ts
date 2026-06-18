@@ -239,6 +239,12 @@ export async function updateArticle(
       ...(input.isInvestigative !== undefined
         ? { isInvestigative: input.isInvestigative }
         : {}),
+      ...(input.submittedForReview !== undefined
+        ? { submittedForReview: input.submittedForReview }
+        : {}),
+      ...(nextStatus === ArticleStatus.published
+        ? { submittedForReview: false }
+        : {}),
       readTime: estimateReadTime(body ?? ""),
       ...publishFields,
     },
@@ -293,4 +299,69 @@ export async function publishScheduledArticles(): Promise<number> {
   }
 
   return due.length;
+}
+
+export async function listReviewQueue(options: { page: number; limit: number }) {
+  const where = { submittedForReview: true, status: ArticleStatus.draft };
+
+  const [articles, total] = await Promise.all([
+    db.article.findMany({
+      where,
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+      orderBy: { updatedAt: "desc" },
+      include: {
+        author: { select: { id: true, fullName: true, email: true } },
+        category: { select: { name: true } },
+      },
+    }),
+    db.article.count({ where }),
+  ]);
+
+  return {
+    data: articles.map((a) => ({
+      id: a.id,
+      title: a.title,
+      slug: a.slug,
+      excerpt: a.excerpt,
+      submittedForReview: a.submittedForReview,
+      updatedAt: a.updatedAt.toISOString(),
+      author: {
+        id: a.author.id,
+        name: a.author.fullName ?? a.author.email,
+        email: a.author.email,
+      },
+      category: { name: a.category.name },
+    })),
+    total,
+    page: options.page,
+    limit: options.limit,
+  };
+}
+
+export async function reviewArticleSubmission(
+  id: string,
+  action: "publish" | "return",
+  role: UserRole,
+  userId: string
+) {
+  if (action === "publish") {
+    return updateArticle(
+      id,
+      { status: ArticleStatus.published, submittedForReview: false },
+      role,
+      userId
+    );
+  }
+
+  const existing = await db.article.findUnique({ where: { id } });
+  if (!existing) return null;
+
+  const article = await db.article.update({
+    where: { id },
+    data: { submittedForReview: false },
+    include: { category: { select: { name: true } } },
+  });
+
+  return serializeEditorArticle(article);
 }

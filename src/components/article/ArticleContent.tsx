@@ -80,9 +80,18 @@ export default function ArticleContent({
             <div className="flex items-center gap-3">
               <Avatar initials={article.author.initials} size="md" />
               <div>
-                <div className="font-ui text-sm font-semibold text-text-primary">
-                  {article.author.name}
-                </div>
+                {article.author.username ? (
+                  <Link
+                    href={`/author/${article.author.username}`}
+                    className="font-ui text-sm font-semibold text-text-primary hover:text-gold"
+                  >
+                    {article.author.name}
+                  </Link>
+                ) : (
+                  <div className="font-ui text-sm font-semibold text-text-primary">
+                    {article.author.name}
+                  </div>
+                )}
                 <div className="font-ui text-[11px] text-text-muted">
                   {article.author.role} · {article.author.articleCount} articles
                 </div>

@@ -64,6 +64,7 @@ function mockToPublic(article: Article): PublicArticle {
     author: {
       id: article.author.id,
       name: article.author.name,
+      username: null,
       role: "journalist" as PublicArticle["author"]["role"],
       initials: article.author.initials,
     },

@@ -17,6 +17,14 @@ export const adminNavItems: AdminNavItem[] = [
   { id: "overview", label: "Overview", href: "/dashboard", group: "main", icon: "grid" },
   { id: "articles", label: "Articles", href: "/dashboard/articles", group: "main", icon: "file" },
   { id: "write", label: "Write Article", href: "/dashboard/write", group: "main", icon: "edit" },
+  {
+    id: "review",
+    label: "Review Queue",
+    href: "/dashboard/review",
+    group: "main",
+    icon: "file",
+    roles: ["admin", "editor"],
+  },
   { id: "media", label: "Media Library", href: "/dashboard/media", group: "main", icon: "monitor" },
   {
     id: "comments",

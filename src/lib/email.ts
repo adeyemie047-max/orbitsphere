@@ -144,3 +144,30 @@ export async function sendPremiumWelcomeEmail(input: {
 export function isEmailConfigured() {
   return Boolean(process.env.RESEND_API_KEY);
 }
+
+export async function sendStaffInviteEmail(input: {
+  to: string;
+  name: string;
+  role: string;
+  resetUrl: string;
+}) {
+  const greeting = input.name.split(" ")[0];
+  const roleLabel = input.role.charAt(0).toUpperCase() + input.role.slice(1);
+  const url = siteUrl();
+
+  return sendEmail({
+    to: input.to,
+    subject: `You're invited to join OrbitSphere as ${roleLabel}`,
+    html: emailShell(`
+      <p style="margin:0 0 16px;">Hi ${greeting},</p>
+      <p style="margin:0 0 16px;">An administrator has invited you to join the OrbitSphere newsroom as a <strong>${roleLabel}</strong>.</p>
+      <p style="margin:0 0 24px;">Set your password using the link below — it expires in 1 hour. Then sign in at ${url}/sign-in to access the dashboard.</p>
+      <p style="margin:0 0 24px;">
+        <a href="${input.resetUrl}" style="display:inline-block;background:#e62e2d;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;">
+          Set your password
+        </a>
+      </p>
+      <p style="margin:0;font-size:13px;color:#71717a;">If you weren't expecting this invite, you can ignore this email.</p>
+    `),
+  });
+}

@@ -113,6 +113,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         ...(parsed.data.isInvestigative !== undefined
           ? { isInvestigative: parsed.data.isInvestigative }
           : {}),
+        ...(parsed.data.submittedForReview !== undefined
+          ? { submittedForReview: parsed.data.submittedForReview }
+          : {}),
       },
       session.role,
       session.userId

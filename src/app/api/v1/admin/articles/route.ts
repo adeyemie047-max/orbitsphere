@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
         isBreaking: parsed.data.isBreaking,
         isFeatured: parsed.data.isFeatured,
         isInvestigative: parsed.data.isInvestigative,
+        submittedForReview: parsed.data.submittedForReview,
       },
       session.userId
     );

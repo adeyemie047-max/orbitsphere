@@ -5,7 +5,7 @@ import EditorialImage from "@/components/ui/EditorialImage";
 
 type MediaItem = {
   url: string;
-  source: "upload" | "article";
+  source: "upload" | "article" | "cloudinary";
   label?: string;
 };
 
@@ -14,6 +14,7 @@ export default function MediaLibraryPanel() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [cloudinaryConfigured, setCloudinaryConfigured] = useState(true);
 
   const fetchMedia = useCallback(async () => {
     setLoading(true);
@@ -21,6 +22,7 @@ export default function MediaLibraryPanel() {
     if (res.ok) {
       const json = await res.json();
       setItems(json.data ?? []);
+      setCloudinaryConfigured(json.cloudinaryConfigured !== false);
     }
     setLoading(false);
   }, []);
@@ -56,9 +58,17 @@ export default function MediaLibraryPanel() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <p className="text-text-muted text-sm">
-          Upload images for articles and branding. Click an item to copy its URL.
-        </p>
+        <div>
+          <p className="text-text-muted text-sm">
+            Upload images for articles and branding. Click an item to copy its URL.
+          </p>
+          {!cloudinaryConfigured && (
+            <p className="text-amber-400/90 text-xs mt-1">
+              Cloudinary is not configured — uploads save locally and will not persist on Vercel.
+              Set CLOUDINARY_* env vars in production.
+            </p>
+          )}
+        </div>
         <label className="cursor-pointer inline-flex items-center justify-center font-[family-name:var(--font-ui)] text-xs font-semibold px-4 py-2 rounded-md bg-gold text-ink hover:bg-gold/90 transition-all">
           {uploading ? "Uploading…" : "+ Upload image"}
           <input

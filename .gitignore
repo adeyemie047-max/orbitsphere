@@ -32,8 +32,15 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+dev-server.log
+preview-*.png
+
+# local uploads (use Cloudinary in production)
+/public/uploads/
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.vercel
+
 .vercel

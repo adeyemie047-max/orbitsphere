@@ -16,13 +16,18 @@ export default function CommentsModerationPanel() {
   const [comments, setComments] = useState<PendingComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchComments = useCallback(async () => {
     setLoading(true);
+    setError(null);
     const res = await fetch("/api/v1/admin/comments/pending?limit=30");
     if (res.ok) {
       const json = await res.json();
       setComments(json.data ?? []);
+    } else {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "Failed to load pending comments");
     }
     setLoading(false);
   }, []);
@@ -33,9 +38,13 @@ export default function CommentsModerationPanel() {
 
   const approve = async (id: string) => {
     setActingId(id);
+    setError(null);
     const res = await fetch(`/api/v1/comments/${id}/approve`, { method: "PUT" });
     if (res.ok) {
       setComments((prev) => prev.filter((c) => c.id !== id));
+    } else {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "Failed to approve comment");
     }
     setActingId(null);
   };
@@ -43,15 +52,24 @@ export default function CommentsModerationPanel() {
   const reject = async (id: string) => {
     if (!confirm("Delete this comment permanently?")) return;
     setActingId(id);
+    setError(null);
     const res = await fetch(`/api/v1/comments/${id}`, { method: "DELETE" });
     if (res.ok) {
       setComments((prev) => prev.filter((c) => c.id !== id));
+    } else {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "Failed to reject comment");
     }
     setActingId(null);
   };
 
   return (
     <div>
+      {error && (
+        <p className="mb-4 text-sm text-red-400" role="alert">
+          {error}
+        </p>
+      )}
       {loading ? (
         <p className="text-text-muted text-sm">Loading pending comments…</p>
       ) : comments.length === 0 ? (

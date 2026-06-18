@@ -1,12 +1,36 @@
 import { readdir, stat } from "fs/promises";
 import path from "path";
 import { db } from "@/lib/db";
+import { getCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 
 export type MediaAsset = {
   url: string;
-  source: "upload" | "article";
+  source: "upload" | "article" | "cloudinary";
   label?: string;
 };
+
+async function listCloudinaryAssets(limit: number): Promise<MediaAsset[]> {
+  if (!isCloudinaryConfigured()) return [];
+
+  try {
+    const cld = getCloudinary();
+    const result = await cld.api.resources({
+      type: "upload",
+      prefix: "orbitsphere",
+      max_results: Math.min(limit, 100),
+    });
+
+    return (result.resources ?? []).map(
+      (resource: { secure_url: string; public_id: string }) => ({
+        url: resource.secure_url,
+        source: "cloudinary" as const,
+        label: resource.public_id.split("/").pop(),
+      })
+    );
+  } catch {
+    return [];
+  }
+}
 
 async function walkUploadDir(relativeDir: string, siteOrigin: string): Promise<MediaAsset[]> {
   const fullDir = path.join(process.cwd(), "public", "uploads", relativeDir);
@@ -38,9 +62,13 @@ async function walkUploadDir(relativeDir: string, siteOrigin: string): Promise<M
 export async function listMediaAssets(options: {
   limit: number;
   siteOrigin: string;
-}): Promise<MediaAsset[]> {
+}): Promise<{ assets: MediaAsset[]; cloudinaryConfigured: boolean }> {
   const origin = options.siteOrigin.replace(/\/$/, "");
-  const uploads = await walkUploadDir("", origin);
+  const cloudinaryConfigured = isCloudinaryConfigured();
+  const [cloudinaryAssets, uploads] = await Promise.all([
+    listCloudinaryAssets(options.limit),
+    walkUploadDir("", origin),
+  ]);
 
   let articleImages: MediaAsset[] = [];
   try {
@@ -63,12 +91,16 @@ export async function listMediaAssets(options: {
 
   const seen = new Set<string>();
   const merged: MediaAsset[] = [];
-  for (const item of [...uploads.reverse(), ...articleImages]) {
+  for (const item of [
+    ...cloudinaryAssets,
+    ...uploads.reverse(),
+    ...articleImages,
+  ]) {
     if (seen.has(item.url)) continue;
     seen.add(item.url);
     merged.push(item);
     if (merged.length >= options.limit) break;
   }
 
-  return merged;
+  return { assets: merged, cloudinaryConfigured };
 }

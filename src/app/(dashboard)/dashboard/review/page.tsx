@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import CommentsModerationPanel from "@/components/dashboard/CommentsModerationPanel";
+import ReviewQueuePanel from "@/components/dashboard/ReviewQueuePanel";
 import { requireDashboardSession } from "@/lib/auth-utils";
-import { canModerateComments } from "@/lib/rbac";
+import { canPublishArticle } from "@/lib/rbac";
 
-export default async function DashboardCommentsPage() {
-  const session = await requireDashboardSession("/dashboard/comments");
+export default async function DashboardReviewPage() {
+  const session = await requireDashboardSession("/dashboard/review");
 
-  if (!canModerateComments(session.role)) {
+  if (!canPublishArticle(session.role)) {
     redirect("/dashboard");
   }
 
@@ -14,12 +14,12 @@ export default async function DashboardCommentsPage() {
     <main className="p-6 lg:p-8 overflow-y-auto">
       <div className="gold-rule" />
       <h1 className="font-[family-name:var(--font-serif)] text-[28px] font-black text-white mb-2">
-        Comments
+        Editorial Review
       </h1>
       <p className="font-[family-name:var(--font-ui)] text-sm text-text-muted max-w-lg mb-8">
-        Review, approve, and moderate reader comments across all articles.
+        Articles submitted by journalists awaiting editor approval before publication.
       </p>
-      <CommentsModerationPanel />
+      <ReviewQueuePanel />
     </main>
   );
 }

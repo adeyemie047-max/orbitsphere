@@ -57,6 +57,9 @@ export default function ArticleEditor({
   const [isBreaking, setIsBreaking] = useState(initial?.isBreaking ?? false);
   const [isFeatured, setIsFeatured] = useState(initial?.isFeatured ?? false);
   const [status, setStatus] = useState(initial?.status ?? "draft");
+  const [submittedForReview, setSubmittedForReview] = useState(
+    initial?.submittedForReview ?? false
+  );
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(
     initial?.updatedAt ? new Date(initial.updatedAt) : null
@@ -104,6 +107,7 @@ export default function ArticleEditor({
     async (opts?: {
       forceStatus?: "draft" | "published" | "scheduled" | "archived";
       scheduledAtValue?: string;
+      submitForReview?: boolean;
     }) => {
       if (!title.trim() || !categoryId) return false;
       if (savingRef.current) return false;
@@ -126,6 +130,9 @@ export default function ArticleEditor({
         if (opts.forceStatus === "scheduled" && opts.scheduledAtValue) {
           payload.scheduledAt = new Date(opts.scheduledAtValue).toISOString();
         }
+      } else if (opts?.submitForReview) {
+        payload.status = "draft";
+        payload.submittedForReview = true;
       } else if (!articleId) {
         payload.status = "draft";
       }
@@ -158,6 +165,7 @@ export default function ArticleEditor({
         const saved = json.data as EditorArticle;
         setArticleId(saved.id);
         setStatus(saved.status);
+        setSubmittedForReview(saved.submittedForReview);
         setLastSavedAt(new Date());
         setSaveStatus("saved");
         dirtyRef.current = false;
@@ -229,6 +237,14 @@ export default function ArticleEditor({
     }
   };
 
+  const handleSubmitForReview = async () => {
+    if (canPublish) return;
+    const ok = await saveArticle({ submitForReview: true });
+    if (ok) {
+      alert("Submitted for editorial review. An editor will publish or return it.");
+    }
+  };
+
   const saveLabel =
     saveStatus === "saving"
       ? "Saving…"
@@ -242,7 +258,9 @@ export default function ArticleEditor({
               ? "Published"
               : status === "scheduled"
                 ? "Scheduled"
-                : "Draft";
+                : submittedForReview
+                  ? "Awaiting review"
+                  : "Draft";
 
   return (
     <div className="bg-surface border border-white/6 rounded-[14px] overflow-hidden mb-6">
@@ -282,6 +300,11 @@ export default function ArticleEditor({
                 Publish Now
               </Button>
             </>
+          )}
+          {!canPublish && (
+            <Button size="sm" onClick={() => void handleSubmitForReview()}>
+              Submit for Review
+            </Button>
           )}
         </div>
       </div>

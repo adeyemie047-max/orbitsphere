@@ -84,7 +84,7 @@ export default function ReviewQueuePanel() {
                 </p>
               )}
               <div className="flex flex-wrap gap-2 pt-2 border-t border-white/6">
-                <Button size="sm" variant="outline" href={`/dashboard/write?id=${article.id}`}>
+                <Button size="sm" variant="outline" href={`/dashboard/write?edit=${article.id}`}>
                   Edit
                 </Button>
                 <Button

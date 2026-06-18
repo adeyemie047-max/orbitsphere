@@ -31,6 +31,9 @@ export default function UsersManagerPanel() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(20);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -45,15 +48,23 @@ export default function UsersManagerPanel() {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams({ limit: "50" });
+    const params = new URLSearchParams({
+      limit: String(limit),
+      page: String(page),
+    });
     if (query.trim()) params.set("q", query.trim());
     if (roleFilter) params.set("role", roleFilter);
     const res = await fetch(`/api/v1/admin/users?${params}`);
     if (res.ok) {
       const json = await res.json();
       setUsers(json.data ?? []);
+      setTotal(json.total ?? 0);
     }
     setLoading(false);
+  }, [query, roleFilter, page, limit]);
+
+  useEffect(() => {
+    setPage(1);
   }, [query, roleFilter]);
 
   useEffect(() => {
@@ -62,6 +73,8 @@ export default function UsersManagerPanel() {
     }, 300);
     return () => clearTimeout(timer);
   }, [fetchUsers]);
+
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   const changeRole = async (userId: string, role: string) => {
     setUpdatingId(userId);
@@ -237,6 +250,32 @@ export default function UsersManagerPanel() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {!loading && total > limit && (
+        <div className="flex items-center justify-between mt-4 text-sm text-text-muted">
+          <span>
+            Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>
