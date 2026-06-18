@@ -36,6 +36,12 @@ foreach ($key in $keys) {
   Write-Host "Synced $key to Vercel Production" -ForegroundColor Green
 }
 
+$cloudName = Get-EnvVal "CLOUDINARY_CLOUD_NAME"
+if ($cloudName) {
+  $cloudName | npx vercel env add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME production --force | Out-Null
+  Write-Host "Synced NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME to Vercel Production" -ForegroundColor Green
+}
+
 Write-Host "`nRedeploying to Vercel production..." -ForegroundColor Cyan
 npx vercel --prod --yes
 Write-Host "`nDone. Test upload at /dashboard/media on production." -ForegroundColor Green

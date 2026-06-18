@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
         data: {
           url: result.url,
           publicId: result.publicId,
+          provider: "cloudinary",
         },
       });
     }
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
         data: {
           url: result.url,
           publicId: result.pathname,
+          provider: "blob",
         },
       });
     }
@@ -88,6 +90,7 @@ export async function POST(request: NextRequest) {
       data: {
         url: absoluteUrl,
         publicId: null,
+        provider: "local",
       },
     });
   } catch (error) {

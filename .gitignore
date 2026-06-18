@@ -26,6 +26,7 @@
 *.pem
 .env
 .env*.local
+.env.cloudinary.local
 .supabase/
 
 # debug
@@ -44,3 +45,5 @@ next-env.d.ts
 .vercel
 
 .vercel
+
+.env*

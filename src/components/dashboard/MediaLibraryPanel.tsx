@@ -74,9 +74,14 @@ export default function MediaLibraryPanel() {
               Cloudinary is recommended for production.
             </p>
           )}
+          {storageBackend === "cloudinary" && (
+            <p className="text-emerald-400/90 text-xs mt-1">
+              Cloudinary CDN is active — uploads are optimized and persist across deploys.
+            </p>
+          )}
           {storageBackend === "blob" && (
             <p className="text-emerald-400/90 text-xs mt-1">
-              Vercel Blob storage is active — uploads persist across deploys.
+              Vercel Blob is active. Add Cloudinary keys to enable CDN transforms (recommended).
             </p>
           )}
         </div>
