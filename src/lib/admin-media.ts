@@ -1,11 +1,12 @@
 import { readdir, stat } from "fs/promises";
 import path from "path";
+import { listBlobAssets, isBlobStorageConfigured } from "@/lib/blob-storage";
 import { db } from "@/lib/db";
 import { getCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 
 export type MediaAsset = {
   url: string;
-  source: "upload" | "article" | "cloudinary";
+  source: "upload" | "article" | "cloudinary" | "blob";
   label?: string;
 };
 
@@ -62,11 +63,24 @@ async function walkUploadDir(relativeDir: string, siteOrigin: string): Promise<M
 export async function listMediaAssets(options: {
   limit: number;
   siteOrigin: string;
-}): Promise<{ assets: MediaAsset[]; cloudinaryConfigured: boolean }> {
+}): Promise<{
+  assets: MediaAsset[];
+  cloudinaryConfigured: boolean;
+  blobConfigured: boolean;
+}> {
   const origin = options.siteOrigin.replace(/\/$/, "");
   const cloudinaryConfigured = isCloudinaryConfigured();
-  const [cloudinaryAssets, uploads] = await Promise.all([
+  const blobConfigured = isBlobStorageConfigured();
+
+  const [cloudinaryAssets, blobAssets, uploads] = await Promise.all([
     listCloudinaryAssets(options.limit),
+    listBlobAssets({ limit: options.limit }).then((items) =>
+      items.map((item) => ({
+        url: item.url,
+        source: "blob" as const,
+        label: item.pathname.split("/").pop(),
+      }))
+    ),
     walkUploadDir("", origin),
   ]);
 
@@ -93,6 +107,7 @@ export async function listMediaAssets(options: {
   const merged: MediaAsset[] = [];
   for (const item of [
     ...cloudinaryAssets,
+    ...blobAssets,
     ...uploads.reverse(),
     ...articleImages,
   ]) {
@@ -102,5 +117,5 @@ export async function listMediaAssets(options: {
     if (merged.length >= options.limit) break;
   }
 
-  return { assets: merged, cloudinaryConfigured };
+  return { assets: merged, cloudinaryConfigured, blobConfigured };
 }

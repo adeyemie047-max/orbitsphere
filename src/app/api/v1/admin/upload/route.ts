@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isBlobStorageConfigured, uploadToBlob } from "@/lib/blob-storage";
 import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 import { isEditorialSession, requireEditorialSession } from "@/lib/api-auth";
 import { saveLocalUpload } from "@/lib/local-upload";
@@ -67,6 +68,16 @@ export async function POST(request: NextRequest) {
         data: {
           url: result.url,
           publicId: result.publicId,
+        },
+      });
+    }
+
+    if (isBlobStorageConfigured()) {
+      const result = await uploadToBlob(buffer, file.name, folderRaw);
+      return NextResponse.json({
+        data: {
+          url: result.url,
+          publicId: result.pathname,
         },
       });
     }

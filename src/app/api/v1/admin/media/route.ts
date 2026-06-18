@@ -17,11 +17,15 @@ export async function GET(request: NextRequest) {
       process.env.AUTH_URL ??
       request.nextUrl.origin;
 
-    const { assets, cloudinaryConfigured } = await listMediaAssets({
+    const { assets, cloudinaryConfigured, blobConfigured } = await listMediaAssets({
       limit: effectiveLimit,
       siteOrigin,
     });
-    return NextResponse.json({ data: assets, cloudinaryConfigured });
+    return NextResponse.json({
+      data: assets,
+      cloudinaryConfigured,
+      blobConfigured,
+    });
   } catch {
     return NextResponse.json({ error: "Failed to list media" }, { status: 500 });
   }

@@ -5,7 +5,7 @@ import EditorialImage from "@/components/ui/EditorialImage";
 
 type MediaItem = {
   url: string;
-  source: "upload" | "article" | "cloudinary";
+  source: "upload" | "article" | "cloudinary" | "blob";
   label?: string;
 };
 
@@ -14,7 +14,7 @@ export default function MediaLibraryPanel() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
-  const [cloudinaryConfigured, setCloudinaryConfigured] = useState(true);
+  const [storageBackend, setStorageBackend] = useState<"blob" | "cloudinary" | "local">("local");
 
   const fetchMedia = useCallback(async () => {
     setLoading(true);
@@ -22,7 +22,13 @@ export default function MediaLibraryPanel() {
     if (res.ok) {
       const json = await res.json();
       setItems(json.data ?? []);
-      setCloudinaryConfigured(json.cloudinaryConfigured !== false);
+      if (json.cloudinaryConfigured) {
+        setStorageBackend("cloudinary");
+      } else if (json.blobConfigured) {
+        setStorageBackend("blob");
+      } else {
+        setStorageBackend("local");
+      }
     }
     setLoading(false);
   }, []);
@@ -62,10 +68,15 @@ export default function MediaLibraryPanel() {
           <p className="text-text-muted text-sm">
             Upload images for articles and branding. Click an item to copy its URL.
           </p>
-          {!cloudinaryConfigured && (
+          {storageBackend === "local" && (
             <p className="text-amber-400/90 text-xs mt-1">
-              Cloudinary is not configured — uploads save locally and will not persist on Vercel.
-              Set CLOUDINARY_* env vars in production.
+              Using local storage — uploads will not persist on Vercel. Vercel Blob or
+              Cloudinary is recommended for production.
+            </p>
+          )}
+          {storageBackend === "blob" && (
+            <p className="text-emerald-400/90 text-xs mt-1">
+              Vercel Blob storage is active — uploads persist across deploys.
             </p>
           )}
         </div>
