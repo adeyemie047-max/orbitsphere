@@ -27,7 +27,7 @@ export default function CookieConsent() {
       role="dialog"
       aria-label="Cookie consent"
       aria-live="polite"
-      className="fixed bottom-0 inset-x-0 z-[150] p-4 md:p-6"
+      className="fixed bottom-0 inset-x-0 z-[150] p-4 md:p-6 cookie-banner"
     >
       <div className="container-main">
         <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 sm:p-5 rounded-lg sm:rounded-[14px] bg-surface border border-border shadow-lg">

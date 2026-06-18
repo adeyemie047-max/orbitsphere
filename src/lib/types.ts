@@ -66,6 +66,10 @@ export interface VideoStory {
   channel: string;
   publishedAt: string;
   thumbnail?: string;
+  /** Direct MP4/WebM URL or YouTube embed URL for playback */
+  playbackUrl: string;
+  /** "html5" for native video; "youtube" for iframe embed */
+  playbackType?: "html5" | "youtube";
 }
 
 export interface Poll {

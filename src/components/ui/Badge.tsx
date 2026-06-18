@@ -4,11 +4,11 @@ import type { PublicArticle } from "@/lib/articles-db";
 import { cn } from "@/lib/utils";
 
 const colorMap = {
-  gold: "bg-[var(--ds-accent)] text-white border-[var(--ds-accent)]",
-  cyan: "bg-surface-2 text-text-secondary border-border",
-  blue: "bg-surface-2 text-text-secondary border-border",
-  breaking: "bg-breaking text-white border-breaking",
-  live: "bg-live text-white border-live",
+  gold: "bg-[var(--ds-accent)] text-[var(--ds-on-accent)] border-transparent",
+  cyan: "bg-transparent text-[var(--ds-text-secondary)] border-[var(--ds-border)]",
+  blue: "bg-transparent text-[var(--ds-text-secondary)] border-[var(--ds-border)]",
+  breaking: "bg-[var(--ds-badge-bg)] text-[var(--ds-on-badge)] border-transparent",
+  live: "bg-[var(--ds-badge-bg)] text-[var(--ds-badge-fg)] border-transparent",
 };
 
 type BadgeColor = keyof typeof colorMap;
@@ -32,7 +32,7 @@ export default function Badge({
   return (
     <span
       className={cn(
-        "inline-block font-ui text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1",
+        "inline-block font-ui text-[10px] font-bold tracking-[0.1em] uppercase px-2.5 py-1 rounded-[var(--radius-sm)] border",
         colorMap[variant],
         className
       )}

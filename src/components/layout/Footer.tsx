@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { categories } from "@/lib/data";
 import Logo from "@/components/ui/Logo";
-import NewsletterForm from "@/components/shared/NewsletterForm";
+import type { SiteBrandingData } from "@/lib/site-branding";
 
 const footerLinks = {
   news: categories.filter((c) =>
@@ -12,50 +12,72 @@ const footerLinks = {
   ),
   company: [
     { name: "About Us", href: "/about" },
-    { name: "Our Team", href: "/about" },
-    { name: "Advertise", href: "/about" },
-    { name: "Careers", href: "/about" },
+    { name: "Advertise", href: "/advertise" },
+    { name: "Premium", href: "/premium" },
     { name: "Contact", href: "/about" },
     { name: "Citizen Journalism", href: "/submit" },
   ],
 };
 
-export default function Footer() {
+const SOCIAL_LABELS: Record<keyof Pick<
+  SiteBrandingData,
+  "twitterUrl" | "facebookUrl" | "linkedinUrl" | "youtubeUrl" | "instagramUrl"
+>, string> = {
+  twitterUrl: "Twitter / X",
+  facebookUrl: "Facebook",
+  linkedinUrl: "LinkedIn",
+  youtubeUrl: "YouTube",
+  instagramUrl: "Instagram",
+};
+
+export default function Footer({ branding }: { branding: SiteBrandingData }) {
+  const socialLinks = (
+    [
+      ["twitterUrl", "𝕏"],
+      ["facebookUrl", "f"],
+      ["linkedinUrl", "in"],
+      ["youtubeUrl", "▶"],
+      ["instagramUrl", "◎"],
+    ] as const
+  ).filter(([key]) => branding[key]);
+
   return (
-    <footer className="bg-[var(--ds-navbar-bg)] text-[var(--ds-nav-text)] border-t-4 border-[var(--ds-accent)] pt-12 pb-8 mt-10">
+    <footer className="site-footer site-footer--animated mt-auto">
       <div className="container-main">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1fr] gap-12 mb-12">
-          <div>
-            <Logo size="sm" variant="masthead" />
-            <p className="text-[13px] text-[var(--ds-nav-text)] leading-[1.75] my-4 max-w-sm">
-              OrbitSphere is Nigeria&apos;s premier digital newspaper — delivering fearless,
-              intelligent journalism that keeps Africa informed, engaged, and empowered in the
-              21st century.
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 xl:gap-12 py-12 sm:py-14">
+          <div className="sm:col-span-2 xl:col-span-1">
+            <Logo size="sm" variant="footer" branding={branding} />
+            <p className="text-[13px] sm:text-sm text-[var(--ds-footer-muted)] leading-[1.75] my-4 max-w-sm">
+              {branding.footerDescription}
             </p>
-            <div className="flex gap-2.5">
-              {["𝕏", "f", "in", "▶", "📸"].map((icon) => (
-                <a
-                  key={icon}
-                  href="#"
-                  className="w-9 h-9 border border-[var(--ds-nav-border)] flex items-center justify-center font-ui text-[12px] hover:bg-[var(--ds-nav-hover-bg)] hover:text-white transition-colors"
-                  aria-label={`Social link ${icon}`}
-                >
-                  {icon}
-                </a>
-              ))}
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="flex flex-wrap gap-2.5">
+                {socialLinks.map(([key, icon]) => (
+                  <a
+                    key={key}
+                    href={branding[key]!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 border border-[rgba(245,245,240,0.18)] flex items-center justify-center font-ui text-[11px] text-[rgba(245,245,240,0.65)] hover:border-[var(--ds-accent)] hover:text-[var(--ds-accent)] transition-colors rounded-[var(--radius-sm)]"
+                    aria-label={SOCIAL_LABELS[key]}
+                  >
+                    {icon}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
-            <div className="font-[family-name:var(--font-ui)] text-xs font-bold tracking-[0.14em] uppercase text-white mb-5">
+            <h4 className="font-ui text-[10px] font-bold tracking-[0.14em] uppercase text-[rgba(245,245,240,0.4)] mb-4">
               News
-            </div>
+            </h4>
             <ul className="flex flex-col gap-2.5 list-none">
               {footerLinks.news.map((cat) => (
                 <li key={cat.slug}>
                   <Link
                     href={`/${cat.slug}`}
-                    className="font-ui text-[13px] text-[var(--ds-nav-text)] hover:text-white transition-colors"
+                    className="font-ui text-[13px] text-[var(--ds-footer-text)] hover:text-[var(--ds-accent)] transition-colors"
                   >
                     {cat.name}
                   </Link>
@@ -65,43 +87,33 @@ export default function Footer() {
           </div>
 
           <div>
-            <div className="font-[family-name:var(--font-ui)] text-xs font-bold tracking-[0.14em] uppercase text-white mb-5">
+            <h4 className="font-ui text-[10px] font-bold tracking-[0.14em] uppercase text-[rgba(245,245,240,0.4)] mb-4">
               Features
-            </div>
+            </h4>
             <ul className="flex flex-col gap-2.5 list-none">
               {footerLinks.features.map((cat) => (
                 <li key={cat.slug}>
                   <Link
                     href={`/${cat.slug}`}
-                    className="font-ui text-[13px] text-[var(--ds-nav-text)] hover:text-white transition-colors"
+                    className="font-ui text-[13px] text-[var(--ds-footer-text)] hover:text-[var(--ds-accent)] transition-colors"
                   >
                     {cat.name}
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/" className="font-ui text-[13px] text-[var(--ds-nav-text)] hover:text-white transition-colors">
-                  Video
-                </Link>
-              </li>
-              <li>
-                <Link href="/" className="font-ui text-[13px] text-[var(--ds-nav-text)] hover:text-white transition-colors">
-                  Podcasts
-                </Link>
-              </li>
             </ul>
           </div>
 
           <div>
-            <div className="font-[family-name:var(--font-ui)] text-xs font-bold tracking-[0.14em] uppercase text-white mb-5">
+            <h4 className="font-ui text-[10px] font-bold tracking-[0.14em] uppercase text-[rgba(245,245,240,0.4)] mb-4">
               Company
-            </div>
+            </h4>
             <ul className="flex flex-col gap-2.5 list-none">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="font-ui text-[13px] text-[var(--ds-nav-text)] hover:text-white transition-colors"
+                    className="font-ui text-[13px] text-[var(--ds-footer-text)] hover:text-[var(--ds-accent)] transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -111,16 +123,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-7 border-t border-[var(--ds-nav-border)] font-ui text-xs text-[var(--ds-nav-text)]">
-          <span>© 2026 OrbitSphere Media Limited. All rights reserved.</span>
-          <div className="flex gap-5">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4 py-6 border-t border-[rgba(245,245,240,0.1)] font-ui text-xs text-[rgba(245,245,240,0.45)]">
+          <span>
+            © {branding.copyrightYear} {branding.copyrightName}. All rights reserved.
+          </span>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             {[
               { label: "Privacy Policy", href: "/privacy" },
               { label: "Terms of Use", href: "/terms" },
               { label: "Cookie Settings", href: "/cookies" },
               { label: "Corrections", href: "/corrections" },
             ].map((item) => (
-              <Link key={item.label} href={item.href} className="hover:text-white transition-colors">
+              <Link key={item.label} href={item.href} className="hover:text-[var(--ds-accent)] transition-colors">
                 {item.label}
               </Link>
             ))}

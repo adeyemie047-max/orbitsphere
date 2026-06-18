@@ -16,7 +16,7 @@ export default function Avatar({ initials, size = "sm", className }: AvatarProps
   return (
     <div
       className={cn(
-        "rounded-full bg-gradient-to-br from-[rgba(212,175,55,0.15)] to-midnight-mid border-[1.5px] border-gold flex items-center justify-center font-[family-name:var(--font-ui)] font-semibold text-gold shrink-0",
+        "rounded-full bg-[var(--ds-accent-muted)] border border-[var(--ds-accent-border)] flex items-center justify-center font-ui font-semibold text-[var(--ds-accent)] shrink-0",
         sizes[size],
         className
       )}

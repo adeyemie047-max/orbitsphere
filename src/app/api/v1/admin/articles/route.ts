@@ -81,9 +81,10 @@ export async function POST(request: NextRequest) {
     );
 
     return NextResponse.json({ data: article }, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("Create article failed:", error);
     return NextResponse.json(
-      { error: "Database unavailable" },
+      { error: "Database unavailable. Start Postgres and run npm run db:setup." },
       { status: 503 }
     );
   }

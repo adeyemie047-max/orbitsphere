@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { sendNewsletterWelcomeEmail } from "@/lib/email";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
 const subscribeSchema = z.object({
@@ -33,6 +34,8 @@ export async function POST(request: NextRequest) {
       create: { email, isActive: true },
       update: { isActive: true },
     });
+
+    void sendNewsletterWelcomeEmail({ to: email });
 
     return NextResponse.json({
       success: true,

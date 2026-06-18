@@ -1,63 +1,50 @@
 import Link from "next/link";
 import type { PublicArticle } from "@/lib/articles-db";
 import Button from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
-import Avatar from "@/components/ui/Avatar";
+import { CategoryBadge } from "@/components/ui/Badge";
 
 interface OpinionSectionProps {
   articles: PublicArticle[];
 }
 
 export default function OpinionSection({ articles }: OpinionSectionProps) {
+  const items = articles.slice(0, 4);
+  if (items.length === 0) return null;
+
   return (
-    <section className="py-[60px]">
+    <section className="section-block border-t border-[var(--ds-border)] reveal-on-scroll reveal-delay-3">
       <div className="container-main">
-        <div className="flex items-end justify-between mb-8">
+        <div className="section-header mb-8">
           <div>
-            <div className="gold-rule" />
-            <h2 className="section-title">Opinion & Analysis</h2>
+            <p className="section-label mb-1">Perspectives</p>
+            <h2 className="section-title">Opinion</h2>
           </div>
           <Button href="/opinion" variant="outline" size="sm">
-            All Opinion →
+            View all
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {articles.map((article) => (
+
+        <div className="editorial-grid editorial-grid--interactive editorial-grid--lift reveal-stagger grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          {items.map((article) => (
             <Link
               key={article.id}
               href={`/article/${article.slug}`}
-              className="group block"
+              className="group block px-5 py-7 sm:px-7 sm:py-8 border-b sm:border-b-0 sm:border-r border-[var(--ds-border)] last:border-b-0 last:border-r-0 transition-all outline-none min-w-0 h-full"
             >
-              <article className="relative bg-surface border border-white/6 rounded-[14px] p-7 transition-all hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.45)] hover:border-[rgba(212,175,55,0.25)]">
-                <span className="absolute top-[18px] right-6 font-[family-name:var(--font-serif)] text-[80px] text-gold opacity-[0.12] leading-none pointer-events-none">
-                  &ldquo;
-                </span>
-                <Avatar initials={article.author.initials} size="lg" className="mb-4" />
-                <Badge
-                  variant={
-                    article.category.color === "cyan" ||
-                    article.category.color === "blue" ||
-                    article.category.color === "gold"
-                      ? article.category.color
-                      : "gold"
-                  }
-                  className="mb-3"
-                >
-                  {article.category.name}
-                </Badge>
-                <h3 className="font-[family-name:var(--font-serif-alt)] text-lg leading-[1.45] text-text-primary my-3 transition-colors group-hover:text-gold line-clamp-3">
-                  {article.title}
-                </h3>
-                <p className="text-[13px] text-text-secondary leading-[1.7] mb-4 line-clamp-3">
-                  {article.excerpt}
-                </p>
-                <div className="font-[family-name:var(--font-ui)] text-xs font-semibold text-gold">
-                  {article.author.name}
-                </div>
-                <div className="font-[family-name:var(--font-ui)] text-[11px] text-text-muted">
-                  {article.author.role} · {article.readTime ?? 5} min read
-                </div>
-              </article>
+              <div className="opinion-avatar mb-4">{article.author.initials}</div>
+              <p className="text-[13px] font-semibold text-[var(--ds-ink)]">
+                {article.author.name}
+              </p>
+              <p className="text-[11px] text-[var(--ds-text-muted)] mb-3 capitalize">
+                {article.author.role ?? "Contributor"}
+              </p>
+              <CategoryBadge category={article.category} className="mb-4 w-fit" />
+              <p className="font-serif text-[17px] sm:text-[18px] italic leading-[1.45] text-[var(--ds-ink)] line-clamp-4 group-hover:opacity-90 transition-opacity mb-6">
+                {article.title}
+              </p>
+              <p className="text-[11px] text-[var(--ds-text-muted)] mt-auto pt-4 border-t border-[var(--ds-border-subtle)]">
+                {article.readTime ?? 5} min read
+              </p>
             </Link>
           ))}
         </div>

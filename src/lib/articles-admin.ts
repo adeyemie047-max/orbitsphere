@@ -17,6 +17,7 @@ export type ArticleInput = {
   isBreaking?: boolean;
   isFeatured?: boolean;
   isInvestigative?: boolean;
+  submittedForReview?: boolean;
 };
 
 export type EditorArticle = {
@@ -34,6 +35,7 @@ export type EditorArticle = {
   isBreaking: boolean;
   isFeatured: boolean;
   isInvestigative: boolean;
+  submittedForReview: boolean;
   authorId: string;
   updatedAt: string;
 };
@@ -84,6 +86,7 @@ function serializeEditorArticle(article: {
   isBreaking: boolean;
   isFeatured: boolean;
   isInvestigative: boolean;
+  submittedForReview: boolean;
   authorId: string;
   updatedAt: Date;
 }): EditorArticle {
@@ -102,6 +105,7 @@ function serializeEditorArticle(article: {
     isBreaking: article.isBreaking,
     isFeatured: article.isFeatured,
     isInvestigative: article.isInvestigative,
+    submittedForReview: article.submittedForReview,
     authorId: article.authorId,
     updatedAt: article.updatedAt.toISOString(),
   };
@@ -165,6 +169,7 @@ export async function createArticle(
       isBreaking: input.isBreaking ?? false,
       isFeatured: input.isFeatured ?? false,
       isInvestigative: input.isInvestigative ?? false,
+      submittedForReview: input.submittedForReview ?? false,
       ...publishFields,
     },
     include: {

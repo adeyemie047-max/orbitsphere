@@ -1,27 +1,34 @@
-import NewsletterForm from "@/components/shared/NewsletterForm";
+import NewsletterCtaForm from "@/components/shared/NewsletterCtaForm";
+import type { SiteBrandingData } from "@/lib/site-branding";
 
-export default function Newsletter() {
+export default function Newsletter({ branding }: { branding: SiteBrandingData }) {
   return (
-    <div className="container-main mb-12 sm:mb-16">
-      <section className="newsletter-band relative py-16 sm:py-20 bg-[var(--ds-hero-bg)] border border-[var(--ds-hero-border)] rounded-2xl overflow-hidden text-center">
-        <div className="absolute w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(230,46,45,0.12)_0%,transparent_70%)] -top-[200px] left-1/2 -translate-x-1/2 pointer-events-none" />
-        <div className="section-label mb-3 relative z-10">Stay Informed</div>
-        <h2 className="font-serif text-[26px] sm:text-[34px] md:text-[42px] font-black text-[var(--ds-hero-fg)] mb-3 relative z-10 leading-tight">
-          The future of news,
-          <br />
-          <span className="text-[var(--ds-accent-light)] italic">delivered daily.</span>
-        </h2>
-        <p className="text-[15px] text-[var(--ds-hero-muted)] mb-9 relative z-10 max-w-md mx-auto px-4">
-          Join 240,000 Africans who read OrbitSphere every morning. No noise. Only what
-          matters.
-        </p>
-        <div className="max-w-[500px] mx-auto relative z-10 px-4">
-          <NewsletterForm inverse />
+    <section className="newsletter-cta reveal-on-scroll" aria-labelledby="newsletter-heading">
+      <div className="container-main newsletter-cta__inner relative z-[1] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+        <div className="newsletter-cta__copy max-w-lg">
+          <p className="section-label section-label--inverse mb-4">
+            Newsletter
+          </p>
+          <h2
+            id="newsletter-heading"
+            className="newsletter-cta__heading font-serif"
+          >
+            {branding.newsletterHeading}
+          </h2>
+          <p className="newsletter-cta__desc">
+            {branding.newsletterDescription}
+          </p>
+          <p className="newsletter-cta__tagline font-ui">
+            {branding.newsletterTagline}
+          </p>
         </div>
-        <p className="font-ui text-[11px] text-[var(--ds-hero-subtle)] mt-3 relative z-10">
-          Free forever. Unsubscribe anytime. No spam — we promise.
-        </p>
-      </section>
-    </div>
+        <div className="newsletter-cta__form-wrap w-full lg:max-w-[480px] lg:shrink-0">
+          <NewsletterCtaForm />
+          <p className="newsletter-cta__fineprint font-ui">
+            Free · Unsubscribe anytime · No spam
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

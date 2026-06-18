@@ -14,6 +14,7 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.isPremium = user.isPremium ?? false;
       }
       return token;
     },
@@ -21,6 +22,7 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as typeof session.user.role;
+        session.user.isPremium = Boolean(token.isPremium);
       }
       return session;
     },

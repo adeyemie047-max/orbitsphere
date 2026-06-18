@@ -1,0 +1,74 @@
+import { readdir, stat } from "fs/promises";
+import path from "path";
+import { db } from "@/lib/db";
+
+export type MediaAsset = {
+  url: string;
+  source: "upload" | "article";
+  label?: string;
+};
+
+async function walkUploadDir(relativeDir: string, siteOrigin: string): Promise<MediaAsset[]> {
+  const fullDir = path.join(process.cwd(), "public", "uploads", relativeDir);
+  let entries: string[];
+  try {
+    entries = await readdir(fullDir);
+  } catch {
+    return [];
+  }
+
+  const results: MediaAsset[] = [];
+  for (const entry of entries) {
+    const childRel = relativeDir ? `${relativeDir}/${entry}` : entry;
+    const fullPath = path.join(fullDir, entry);
+    const info = await stat(fullPath);
+    if (info.isDirectory()) {
+      results.push(...(await walkUploadDir(childRel, siteOrigin)));
+    } else if (/\.(jpe?g|png|webp|gif|svg)$/i.test(entry)) {
+      results.push({
+        url: `${siteOrigin}/uploads/${childRel.replace(/\\/g, "/")}`,
+        source: "upload",
+        label: entry,
+      });
+    }
+  }
+  return results;
+}
+
+export async function listMediaAssets(options: {
+  limit: number;
+  siteOrigin: string;
+}): Promise<MediaAsset[]> {
+  const origin = options.siteOrigin.replace(/\/$/, "");
+  const uploads = await walkUploadDir("", origin);
+
+  let articleImages: MediaAsset[] = [];
+  try {
+    const rows = await db.article.findMany({
+      where: { featuredImage: { not: null } },
+      select: { featuredImage: true, title: true },
+      orderBy: { updatedAt: "desc" },
+      take: options.limit,
+    });
+    articleImages = rows
+      .filter((r) => r.featuredImage)
+      .map((r) => ({
+        url: r.featuredImage!,
+        source: "article" as const,
+        label: r.title.slice(0, 60),
+      }));
+  } catch {
+    // DB optional in dev
+  }
+
+  const seen = new Set<string>();
+  const merged: MediaAsset[] = [];
+  for (const item of [...uploads.reverse(), ...articleImages]) {
+    if (seen.has(item.url)) continue;
+    seen.add(item.url);
+    merged.push(item);
+    if (merged.length >= options.limit) break;
+  }
+
+  return merged;
+}

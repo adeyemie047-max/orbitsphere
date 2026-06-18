@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createResetToken, resetTokenExpiry } from "@/lib/password";
+import { sendPasswordResetEmail, isEmailConfigured } from "@/lib/email";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { forgotPasswordSchema } from "@/lib/validators/auth";
 
@@ -49,17 +50,25 @@ export async function POST(request: Request) {
     },
   });
 
-  const resetUrl = `${process.env.AUTH_URL ?? "http://localhost:3000"}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.AUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/reset-password?token=${token}`;
 
-  if (process.env.NODE_ENV === "development") {
+  const emailResult = await sendPasswordResetEmail({
+    to: email,
+    resetUrl,
+    name: user.fullName,
+  });
+
+  if (process.env.NODE_ENV === "development" && !emailResult.ok) {
     return NextResponse.json({
       ...response,
       devResetUrl: resetUrl,
+      emailConfigured: isEmailConfigured(),
     });
   }
 
-  // Production: integrate email provider (Resend, SendGrid, etc.)
-  console.info("[forgot-password] reset link generated for", email);
+  if (!emailResult.ok) {
+    console.warn("[forgot-password] email not sent:", emailResult.reason, email);
+  }
 
   return NextResponse.json(response);
 }

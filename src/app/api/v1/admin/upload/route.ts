@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 import { isEditorialSession, requireEditorialSession } from "@/lib/api-auth";
-import { canWriteArticles } from "@/lib/rbac";
+import { saveLocalUpload } from "@/lib/local-upload";
+import { canManageUsers, canWriteArticles } from "@/lib/rbac";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = new Set([
@@ -11,29 +12,31 @@ const ALLOWED_TYPES = new Set([
   "image/gif",
 ]);
 
+function normalizeSubfolder(folder: string): string {
+  return folder.replace(/^orbitsphere\//, "");
+}
+
 export async function POST(request: NextRequest) {
   const session = await requireEditorialSession();
   if (!isEditorialSession(session)) return session;
-
-  if (!canWriteArticles(session.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  if (!isCloudinaryConfigured()) {
-    return NextResponse.json(
-      {
-        error: "Cloudinary is not configured",
-        hint: "Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET",
-      },
-      { status: 503 }
-    );
-  }
 
   let formData: FormData;
   try {
     formData = await request.formData();
   } catch {
     return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
+  }
+
+  const folderRaw = formData.get("folder")?.toString() ?? "orbitsphere/articles";
+  const subfolder = normalizeSubfolder(folderRaw);
+  const isBrandingUpload = subfolder === "branding";
+
+  if (isBrandingUpload) {
+    if (!canManageUsers(session.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  } else if (!canWriteArticles(session.role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const file = formData.get("file");
@@ -57,17 +60,27 @@ export async function POST(request: NextRequest) {
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const folder = formData.get("folder")?.toString() ?? "orbitsphere/articles";
-    const result = await uploadToCloudinary(buffer, folder);
 
+    if (isCloudinaryConfigured()) {
+      const result = await uploadToCloudinary(buffer, folderRaw);
+      return NextResponse.json({
+        data: {
+          url: result.url,
+          publicId: result.publicId,
+        },
+      });
+    }
+
+    const url = await saveLocalUpload(buffer, file.name, subfolder);
+    const absoluteUrl = new URL(url, request.nextUrl.origin).href;
     return NextResponse.json({
       data: {
-        url: result.url,
-        publicId: result.publicId,
+        url: absoluteUrl,
+        publicId: null,
       },
     });
   } catch (error) {
-    console.error("Cloudinary upload failed:", error);
+    console.error("Upload failed:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

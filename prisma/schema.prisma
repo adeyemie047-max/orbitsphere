@@ -54,6 +54,22 @@ enum AdPlacement {
   @@map("ad_placement")
 }
 
+enum PremiumPlan {
+  monthly
+  annual
+
+  @@map("premium_plan")
+}
+
+enum PremiumStatus {
+  pending
+  active
+  cancelled
+  expired
+
+  @@map("premium_status")
+}
+
 model User {
   id            String    @id @default(uuid()) @db.Uuid
   email         String    @unique @db.VarChar(255)
@@ -79,6 +95,7 @@ model User {
   pollVotes           PollVote[]
   pushSubscriptions   PushSubscription[]
   liveBlogEntries     LiveBlogEntry[]
+  premiumSubscription PremiumSubscription?
 
   @@map("users")
 }
@@ -164,6 +181,7 @@ model Article {
   isFeatured      Boolean       @default(false) @map("is_featured")
   isInvestigative Boolean       @default(false) @map("is_investigative")
   isLiveBlog      Boolean       @default(false) @map("is_live_blog")
+  submittedForReview Boolean    @default(false) @map("submitted_for_review")
   viewsCount      Int           @default(0) @map("views_count")
   readTime        Int?          @map("read_time")
   publishedAt     DateTime?     @map("published_at") @db.Timestamp(6)
@@ -364,4 +382,67 @@ model Advertisement {
   clicks      Int         @default(0)
 
   @@map("advertisements")
+}
+
+model AdvertiseInquiry {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  email     String   @db.VarChar(255)
+  company   String?  @db.VarChar(255)
+  phone     String?  @db.VarChar(50)
+  budget    String?  @db.VarChar(100)
+  message   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("advertise_inquiries")
+}
+
+model PremiumSubscription {
+  id                String        @id @default(uuid()) @db.Uuid
+  userId            String        @unique @map("user_id") @db.Uuid
+  plan              PremiumPlan
+  status            PremiumStatus @default(pending)
+  paystackReference String?       @unique @map("paystack_reference") @db.VarChar(255)
+  amountKobo        Int           @map("amount_kobo")
+  currentPeriodEnd  DateTime?     @map("current_period_end") @db.Timestamp(6)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("premium_subscriptions")
+}
+
+model SiteBranding {
+  id                    String   @id @default("default")
+  siteNamePrimary       String   @default("Orbit") @map("site_name_primary") @db.VarChar(100)
+  siteNameAccent        String   @default("Sphere") @map("site_name_accent") @db.VarChar(100)
+  siteTagline           String   @default("Independent · African") @map("site_tagline") @db.VarChar(255)
+  mastheadLocations     String   @default("Lagos · Abuja · London") @map("masthead_locations") @db.VarChar(255)
+  siteDescription       String   @map("site_description")
+  footerDescription     String   @map("footer_description")
+  newsletterHeading     String   @map("newsletter_heading") @db.VarChar(255)
+  newsletterDescription String   @map("newsletter_description")
+  newsletterTagline     String   @map("newsletter_tagline") @db.VarChar(255)
+  copyrightName         String   @default("OrbitSphere Media Limited") @map("copyright_name") @db.VarChar(255)
+  copyrightYear         Int      @default(2026) @map("copyright_year")
+  logoUrl               String?  @map("logo_url")
+  faviconUrl            String?  @map("favicon_url")
+  accentColor           String   @default("#C8FF00") @map("accent_color") @db.VarChar(20)
+  inkColor              String   @default("#0A0A0A") @map("ink_color") @db.VarChar(20)
+  paperColor            String   @default("#F5F5F0") @map("paper_color") @db.VarChar(20)
+  seoTitle              String   @map("seo_title") @db.VarChar(255)
+  seoDescription        String   @map("seo_description")
+  ogImageUrl            String?  @map("og_image_url")
+  twitterUrl            String?  @map("twitter_url")
+  facebookUrl           String?  @map("facebook_url")
+  linkedinUrl           String?  @map("linkedin_url")
+  youtubeUrl            String?  @map("youtube_url")
+  instagramUrl          String?  @map("instagram_url")
+  contactEmail          String?  @map("contact_email") @db.VarChar(255)
+  contactPhone          String?  @map("contact_phone") @db.VarChar(50)
+  contactAddress        String?  @map("contact_address")
+  updatedAt             DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@map("site_branding")
 }

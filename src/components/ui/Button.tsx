@@ -14,13 +14,13 @@ interface ButtonProps {
 
 const variants = {
   primary:
-    "bg-[var(--ds-button-bg)] text-[var(--ds-button-fg)] hover:opacity-90 border border-transparent",
+    "bg-[var(--ds-button-bg)] text-[var(--ds-button-fg)] hover:opacity-95 border border-transparent rounded-[var(--radius-sm)] shadow-[0_2px_12px_rgba(10,10,10,0.15)] hover:shadow-[0_4px_20px_rgba(10,10,10,0.2)]",
   gold:
-    "bg-[var(--ds-accent)] text-white hover:bg-[var(--ds-accent-hover)] border border-transparent",
+    "bg-[var(--ds-accent)] text-[var(--ds-ink)] hover:bg-[var(--ds-accent-hover)] border border-transparent font-bold rounded-[var(--radius-sm)] shadow-[0_2px_12px_rgba(200,255,0,0.35)] hover:shadow-[0_4px_20px_rgba(200,255,0,0.25)]",
   outline:
-    "bg-transparent text-foreground border border-foreground hover:bg-surface-2",
+    "bg-transparent text-foreground border border-border hover:border-[var(--ds-ink)] hover:text-[var(--ds-ink)] rounded-[var(--radius-sm)]",
   ghost:
-    "bg-transparent text-foreground border border-border hover:bg-surface-2",
+    "bg-transparent text-foreground border border-border hover:bg-surface-2 rounded-[var(--radius-sm)]",
 };
 
 const sizes = {
@@ -39,7 +39,7 @@ export default function Button({
   disabled,
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 font-ui font-semibold rounded-sm cursor-pointer transition-colors duration-200 tracking-wide",
+    "inline-flex items-center justify-center gap-2 font-ui font-semibold cursor-pointer transition-all duration-200",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ds-accent)]",
     "disabled:opacity-50 disabled:pointer-events-none",
     variants[variant],

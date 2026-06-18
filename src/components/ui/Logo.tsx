@@ -1,31 +1,52 @@
-"use client";
-
 import Link from "next/link";
-import { useId } from "react";
-import { useTheme } from "next-themes";
+import EditorialImage from "@/components/ui/EditorialImage";
 import { cn } from "@/lib/utils";
+import type { SiteBrandingData } from "@/lib/site-branding";
+import { DEFAULT_SITE_BRANDING } from "@/lib/site-branding";
 
 interface LogoProps {
   size?: "sm" | "md";
-  /** White text on dark navbar, or ink on light surfaces */
-  variant?: "masthead" | "default";
+  /** Light nav (default) or dark footer */
+  variant?: "masthead" | "footer" | "default";
+  /** Destination when clickable. Set linked={false} to render without a wrapper link. */
+  href?: string;
+  linked?: boolean;
+  branding?: Pick<
+    SiteBrandingData,
+    | "siteNamePrimary"
+    | "siteNameAccent"
+    | "siteTagline"
+    | "logoUrl"
+    | "accentColor"
+    | "inkColor"
+    | "paperColor"
+  >;
 }
 
-const ACCENT = "#E62E2D";
-const ACCENT_LIGHT = "#FF6B6A";
+const GRAD_IDS = {
+  masthead: "orbitsphere-grad-masthead",
+  footer: "orbitsphere-grad-footer",
+  default: "orbitsphere-grad-default",
+} as const;
 
 function OrbitMark({
   size,
-  masthead,
+  onDark,
   gradId,
+  accentColor,
+  inkColor,
+  paperColor,
 }: {
   size: number;
-  masthead: boolean;
+  onDark: boolean;
   gradId: string;
+  accentColor: string;
+  inkColor: string;
+  paperColor: string;
 }) {
-  const core = masthead ? "#ffffff" : "#111111";
-  const ring = masthead ? ACCENT : ACCENT;
-  const ringFaint = masthead ? "rgba(255,255,255,0.25)" : "rgba(230,46,45,0.25)";
+  const core = onDark ? paperColor : inkColor;
+  const ringFaint = onDark ? `${accentColor}38` : `${inkColor}1F`;
+  const ringAccent = accentColor;
 
   return (
     <svg
@@ -38,94 +59,147 @@ function OrbitMark({
       aria-hidden
     >
       <defs>
-        <radialGradient id={gradId} cx="38%" cy="32%" r="68%">
-          <stop offset="0%" stopColor={masthead ? "#ffffff" : "#444444"} />
+        <radialGradient id={gradId} cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stopColor={onDark ? "#ffffff" : "#3a3a3a"} />
+          <stop offset="55%" stopColor={onDark ? "#d4d4d4" : "#1a1a1a"} />
           <stop offset="100%" stopColor={core} />
         </radialGradient>
-        <filter id={`${gradId}-glow`} x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="1.2" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        <linearGradient id={`${gradId}-orbit`} x1="0" y1="0" x2="40" y2="40">
+          <stop offset="0%" stopColor={accentColor} stopOpacity="0.2" />
+          <stop offset="50%" stopColor={accentColor} stopOpacity="1" />
+          <stop offset="100%" stopColor={accentColor} stopOpacity="0.35" />
+        </linearGradient>
       </defs>
 
-      {/* Static faint orbit track */}
-      <circle cx="20" cy="20" r="16" stroke={ringFaint} strokeWidth="1" fill="none" />
+      <circle cx="20" cy="20" r="17.5" stroke={ringFaint} strokeWidth="0.75" fill="none" />
 
-      {/* Counter-rotating inner ring */}
       <circle
         className="logo-ring-inner"
         cx="20"
         cy="20"
-        r="12"
+        r="13"
         stroke={ringFaint}
-        strokeWidth="1"
+        strokeWidth="0.75"
         strokeLinecap="round"
-        strokeDasharray="14 24"
+        strokeDasharray="12 20"
         fill="none"
       />
 
-      {/* Primary orbit ring + satellite */}
-      <g className="logo-orbit-group" filter={`url(#${gradId}-glow)`}>
+      <g className="logo-orbit-group">
         <circle
           cx="20"
           cy="20"
-          r="16"
-          stroke={ring}
-          strokeWidth="2"
+          r="17"
+          stroke={`url(#${gradId}-orbit)`}
+          strokeWidth="2.25"
           strokeLinecap="round"
-          strokeDasharray="28 18"
+          strokeDasharray="26 20"
           fill="none"
-          opacity="0.95"
         />
-        <circle cx="20" cy="4" r="2.75" fill={ACCENT_LIGHT} />
+        <circle cx="20" cy="3" r="3" fill={ringAccent} />
+        <circle cx="20" cy="3" r="1.25" fill={onDark ? inkColor : paperColor} opacity="0.35" />
       </g>
 
-      {/* Core sphere */}
-      <circle cx="20" cy="20" r="7" fill={`url(#${gradId})`} />
-      <circle cx="20" cy="20" r="7" stroke={masthead ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.08)"} strokeWidth="0.5" fill="none" />
+      <circle cx="20" cy="20" r="8" fill={`url(#${gradId})`} />
+      <circle
+        cx="18"
+        cy="18"
+        r="2.5"
+        fill={onDark ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)"}
+      />
+      <circle
+        cx="20"
+        cy="20"
+        r="8"
+        stroke={onDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.06)"}
+        strokeWidth="0.75"
+        fill="none"
+      />
     </svg>
   );
 }
 
-export default function Logo({ size = "md", variant = "default" }: LogoProps) {
-  const gradId = useId().replace(/:/g, "");
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-  const isMasthead = variant === "masthead";
-  const markSize = size === "sm" ? 34 : 42;
-  const showDarkDefault = !isMasthead && isDark;
+/** Server-rendered logo — stable markup avoids Turbopack hydration drift. */
+export default function Logo({
+  size = "md",
+  variant = "default",
+  href = "/",
+  linked = true,
+  branding,
+}: LogoProps) {
+  const b = branding ?? DEFAULT_SITE_BRANDING;
+  const onDark = variant === "footer";
+  const isMasthead = variant === "masthead" || variant === "footer";
+  const markSize = size === "sm" ? 40 : 48;
+  const pad = size === "sm" ? "p-1.5" : "p-2";
+  const gradId = GRAD_IDS[variant === "default" ? "default" : variant];
 
-  return (
-    <Link
-      href="/"
-      className="flex items-center gap-2.5 sm:gap-3 group shrink-0 min-w-0 max-w-[min(100%,240px)] sm:max-w-none"
+  const mark = b.logoUrl ? (
+    <span
+      className={cn("site-logo-mark shrink-0 origin-left relative block", pad)}
+      style={{ width: markSize, height: markSize }}
     >
-      <span className="shrink-0 scale-90 sm:scale-100 origin-left transition-transform group-hover:scale-105">
-        <OrbitMark size={markSize} masthead={isMasthead || showDarkDefault} gradId={gradId} />
-      </span>
+      <EditorialImage
+        src={b.logoUrl}
+        alt={`${b.siteNamePrimary}${b.siteNameAccent} logo`}
+        fill
+        className="object-contain"
+        sizes={`${markSize}px`}
+      />
+    </span>
+  ) : (
+    <span className={cn("site-logo-mark shrink-0 origin-left", pad)}>
+      <OrbitMark
+        size={markSize}
+        onDark={onDark}
+        gradId={gradId}
+        accentColor={b.accentColor}
+        inkColor={b.inkColor}
+        paperColor={b.paperColor}
+      />
+    </span>
+  );
+
+  const inner = (
+    <>
+      {mark}
       <div className="min-w-0">
         <span
           className={cn(
-            "font-ui font-bold tracking-tight leading-none block truncate",
-            size === "sm" ? "text-base sm:text-lg" : "text-lg sm:text-[22px]",
-            isMasthead ? "text-white" : "text-foreground"
+            "site-logo-wordmark leading-none block truncate",
+            size === "sm" ? "text-xl sm:text-[22px]" : "text-[22px] sm:text-[26px]",
+            onDark ? "text-[var(--ds-paper,#F5F5F0)]" : "text-[var(--ds-ink,#0A0A0A)]"
           )}
         >
-          Orbit
-          <span className="text-[var(--ds-accent)]">Sphere</span>
+          {b.siteNamePrimary}
+          <span className={cn(onDark ? "text-[var(--ds-accent)] ml-1" : "site-logo-sphere-pill")}>
+            {b.siteNameAccent}
+          </span>
         </span>
-        <span
-          className={cn(
-            "hidden sm:block font-ui font-medium tracking-[0.16em] uppercase leading-none mt-1 truncate text-[9px]",
-            isMasthead ? "text-white/55" : "text-text-muted"
-          )}
-        >
-          Independent · African
-        </span>
+        {isMasthead && b.siteTagline && (
+          <span
+            className={cn(
+              "hidden sm:block font-ui font-semibold tracking-[0.18em] uppercase leading-none mt-1.5 truncate text-[9px]",
+              onDark ? "text-[var(--ds-footer-muted)]" : "text-[var(--ds-text-muted)]"
+            )}
+          >
+            {b.siteTagline}
+          </span>
+        )}
       </div>
+    </>
+  );
+
+  const className =
+    "group flex items-center gap-3 sm:gap-3.5 shrink-0 min-w-0 max-w-[min(100%,260px)] sm:max-w-none";
+
+  if (!linked) {
+    return <span className={className}>{inner}</span>;
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {inner}
     </Link>
   );
 }

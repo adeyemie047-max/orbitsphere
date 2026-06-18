@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import EditorialImage from "@/components/ui/EditorialImage";
 import type { PublicArticle } from "@/lib/articles-db";
 import type { Article } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/utils";
@@ -16,33 +16,29 @@ export default function MiniCard({ article, showCategory = true }: MiniCardProps
   return (
     <Link
       href={`/article/${article.slug}`}
-      className="group grid grid-cols-[72px_1fr] sm:grid-cols-[90px_1fr] gap-3 sm:gap-3.5 py-3 sm:py-3.5 border-b border-border last:border-b-0 hover:pl-1.5 transition-all"
+      className="group flex gap-3.5 py-4 border-b border-[var(--ds-border)] last:border-b-0 min-w-0 hover:opacity-90 transition-opacity"
     >
       {article.featuredImage ? (
-        <div className="relative aspect-square rounded-lg overflow-hidden">
-          <Image
+        <div className="relative w-[72px] h-[72px] shrink-0 rounded-[var(--radius-sm)] overflow-hidden bg-[var(--ds-surface-2)]">
+          <EditorialImage
             src={article.featuredImage}
-            alt={article.title}
+            alt=""
             fill
             className="object-cover"
-            sizes="90px"
+            sizes="72px"
           />
         </div>
       ) : (
-        <div className="aspect-square rounded-lg bg-surface-2 flex items-center justify-center font-[family-name:var(--font-ui)] text-[9px] text-text-muted">
-          Img
-        </div>
+        <div className="w-[72px] h-[72px] shrink-0 rounded-[var(--radius-sm)] bg-[var(--ds-surface-2)]" />
       )}
-      <div>
-        {showCategory && (
-          <CategoryBadge category={article.category} className="mb-1.5" />
-        )}
-        <div className="font-[family-name:var(--font-serif)] text-sm font-bold leading-[1.4] text-text-primary mb-1.5 transition-colors group-hover:text-gold line-clamp-2">
+      <div className="min-w-0 flex-1">
+        {showCategory && <CategoryBadge category={article.category} className="mb-2" />}
+        <p className="font-serif text-[15px] leading-snug text-[var(--ds-ink)] mb-1.5 line-clamp-3 group-hover:opacity-85 transition-opacity">
           {article.title}
-        </div>
-        <div className="font-[family-name:var(--font-ui)] text-[11px] text-text-muted">
+        </p>
+        <p className="font-ui text-[11px] text-[var(--ds-text-muted)]">
           {formatRelativeTime(article.publishedAt)} · {article.readTime ?? 5} min
-        </div>
+        </p>
       </div>
     </Link>
   );

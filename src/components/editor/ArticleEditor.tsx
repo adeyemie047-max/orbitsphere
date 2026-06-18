@@ -146,7 +146,12 @@ export default function ArticleEditor({
         const json = await res.json();
         if (!res.ok) {
           setSaveStatus("error");
-          alert(json.error ?? "Save failed");
+          const detail =
+            json.details?.fieldErrors &&
+            Object.entries(json.details.fieldErrors as Record<string, string[]>)
+              .map(([k, v]) => `${k}: ${v.join(", ")}`)
+              .join("\n");
+          alert(detail ? `${json.error}\n${detail}` : (json.error ?? "Save failed"));
           return false;
         }
 

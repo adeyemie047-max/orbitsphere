@@ -172,6 +172,46 @@ export const breakingHeadlines: BreakingHeadline[] = [
   },
 ];
 
+/** Stable editorial photos (Picsum — reliable in dev & production). */
+function editorialImage(
+  seed: string,
+  width = 1200,
+  height = 675
+): string {
+  const safeSeed = seed.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
+  return `https://picsum.photos/seed/${safeSeed}/${width}/${height}`;
+}
+
+export const articleFeaturedImages: Record<string, string> = {
+  "nigeria-economic-renaissance": editorialImage("nigeria-economic-renaissance"),
+  "mtn-africa-record-revenue-growth": editorialImage("mtn-africa-record-revenue-growth"),
+  "super-eagles-afcon-tactical-blueprint": editorialImage("super-eagles-afcon-tactical-blueprint"),
+  "senate-electoral-reform-bill": editorialImage("senate-electoral-reform-bill"),
+  "zenith-bank-q1-profit": editorialImage("zenith-bank-q1-profit"),
+  "flutterwave-series-d-funding": editorialImage("flutterwave-series-d-funding"),
+  "burna-boy-album-record": editorialImage("burna-boy-album-record"),
+  "lagos-ibadan-rail-milestone": editorialImage("lagos-ibadan-rail-milestone"),
+  "cbn-five-point-naira-plan": editorialImage("cbn-five-point-naira-plan"),
+  "stem-scholarship-northern-girls": editorialImage("stem-scholarship-northern-girls"),
+  "nigeria-rice-production-record": editorialImage("nigeria-rice-production-record"),
+  "tinubu-cabinet-reshuffle": editorialImage("tinubu-cabinet-reshuffle"),
+  "dangote-refinery-first-year": editorialImage("dangote-refinery-first-year"),
+  "nass-budget-2026-recommendation": editorialImage("nass-budget-2026-recommendation"),
+  "obi-atiku-alliance-2027": editorialImage("obi-atiku-alliance-2027"),
+  "nigeria-structural-reform-opinion": editorialImage("nigeria-structural-reform-opinion"),
+  "au-silence-sudan-analysis": editorialImage("au-silence-sudan-analysis"),
+  "nigerian-millennials-quiet-ambition": editorialImage("nigerian-millennials-quiet-ambition"),
+  "osimhen-saudi-record-transfer": editorialImage("osimhen-saudi-record-transfer"),
+  "nigeria-tech-unicorns-rebuilding": editorialImage("nigeria-tech-unicorns-rebuilding"),
+};
+
+export const videoThumbnails: Record<string, string> = {
+  "1": editorialImage("orbit-video-refinery", 600, 338),
+  "2": editorialImage("orbit-video-tech", 600, 338),
+  "3": editorialImage("orbit-video-sports", 600, 338),
+  "4": editorialImage("orbit-video-politics", 600, 338),
+};
+
 export const articles: Article[] = [
   {
     id: "1",
@@ -187,8 +227,7 @@ export const articles: Article[] = [
 <p>The Dangote Refinery's first-year performance has provided the practical foundation for this narrative. With 36 million barrels processed and petrol exports reaching five West African nations, the refinery has become both symbol and engine of the renaissance story.</p>
 <h3>What Comes Next</h3>
 <p>Challenges remain. Pipeline infrastructure, domestic pricing policy, and the pace of foreign direct investment will determine whether this moment becomes a lasting transformation or another false dawn. OrbitSphere will continue to track every development.</p>`,
-    featuredImage:
-      "https://picsum.photos/seed/orbit-hero/1200/675",
+    featuredImage: articleFeaturedImages["nigeria-economic-renaissance"],
     imageCaption:
       "Lagos financial district at dusk — Nigeria's economic capital continues to drive continental growth.",
     author: authors.adaeze,
@@ -234,8 +273,7 @@ export const articles: Article[] = [
 <p>The results exceeded analyst expectations by a wide margin, sending MTN Nigeria shares up 8.4% on the NGX at the close of trading. CEO Ralph Mupita attributed the performance to "a structural shift in how Africans consume connectivity and financial services."</p>
 <h2>Fintech as Growth Engine</h2>
 <p>MoMo processed over ₦12 trillion in transaction volume during the quarter — a figure that rivals several mid-tier Nigerian banks. The platform's user base grew to 68 million active accounts, making it one of the largest mobile money networks on the continent.</p>`,
-    featuredImage:
-      "https://picsum.photos/seed/orbit-tech/800/450",
+    featuredImage: articleFeaturedImages["mtn-africa-record-revenue-growth"],
     author: authors.emeka,
     category: cat("technology"),
     status: "published",
@@ -261,8 +299,7 @@ export const articles: Article[] = [
       "In an exclusive interview, the national team coach outlines the formation and strategy that could bring Nigeria its fourth AFCON title.",
     body: `<p>Speaking at the team's training camp in Abidjan, Super Eagles head coach unveiled a 4-3-3 formation designed to maximise the pace of Victor Osimhen and the creativity of Ademola Lookman on the wings.</p>
 <p>"We have studied every opponent in this tournament," he said. "Our approach is not reactive — we dictate the tempo from the first whistle."</p>`,
-    featuredImage:
-      "https://picsum.photos/seed/orbit-sports/800/450",
+    featuredImage: articleFeaturedImages["super-eagles-afcon-tactical-blueprint"],
     author: authors.fatima,
     category: cat("sports"),
     status: "published",
@@ -284,8 +321,7 @@ export const articles: Article[] = [
       "The bill introduces electronic transmission of results, campaign finance limits, and stricter penalties for electoral violence.",
     body: `<p>In a session that stretched past midnight, the Nigerian Senate passed the Electoral Reform Bill 2026 by a vote of 78-9, sending it to the House of Representatives for concurrence.</p>
 <p>Key provisions include mandatory electronic transmission of results from polling units, a ₦5 billion campaign spending cap for presidential candidates, and criminal penalties of up to 10 years for electoral violence.</p>`,
-    featuredImage:
-      "https://picsum.photos/seed/orbit-politics/800/450",
+    featuredImage: articleFeaturedImages["senate-electoral-reform-bill"],
     author: authors.emeka,
     category: cat("politics"),
     status: "published",
@@ -309,6 +345,7 @@ export const articles: Article[] = [
     excerpt:
       "The lender's earnings beat consensus estimates as net interest income surged on the back of CBN rate hikes.",
     body: `<p>Zenith Bank Plc reported pre-tax profit of ₦850 billion for the first quarter of 2025, representing a 127% increase over the same period last year.</p>`,
+    featuredImage: articleFeaturedImages["zenith-bank-q1-profit"],
     author: authors.emeka,
     category: cat("business"),
     status: "published",
@@ -328,6 +365,7 @@ export const articles: Article[] = [
     excerpt:
       "The Lagos-based fintech unicorn plans to expand into East Africa and launch new B2B payment products.",
     body: `<p>Flutterwave has closed a $250 million Series D round led by Avenir Growth Capital, valuing the company at $3.5 billion.</p>`,
+    featuredImage: articleFeaturedImages["flutterwave-series-d-funding"],
     author: authors.chukwuemeka,
     category: cat("technology"),
     status: "published",
@@ -347,6 +385,7 @@ export const articles: Article[] = [
     excerpt:
       "The Grammy winner's latest release amassed 50 million streams in its first 72 hours, setting a new continental benchmark.",
     body: `<p>Burna Boy's "African Giant II" has shattered streaming records across 47 African countries within 72 hours of release.</p>`,
+    featuredImage: articleFeaturedImages["burna-boy-album-record"],
     author: authors.chisom,
     category: cat("entertainment"),
     status: "published",
@@ -366,6 +405,7 @@ export const articles: Article[] = [
     excerpt:
       "The standard gauge rail line has exceeded ridership projections, prompting calls for route extensions to Ilorin.",
     body: `<p>The Lagos-Ibadan Standard Gauge Railway celebrated its 500,000th passenger this week, surpassing initial ridership projections by 34%.</p>`,
+    featuredImage: articleFeaturedImages["lagos-ibadan-rail-milestone"],
     author: authors.fatima,
     category: cat("metro"),
     status: "published",
@@ -385,6 +425,7 @@ export const articles: Article[] = [
     excerpt:
       "The Central Bank governor addressed markets with a comprehensive strategy aimed at restoring investor confidence and curbing inflation.",
     body: `<p>CBN Governor Olayemi Cardoso unveiled a five-point stabilisation plan targeting a naira exchange rate of ₦1,200 per dollar within 18 months.</p>`,
+    featuredImage: articleFeaturedImages["cbn-five-point-naira-plan"],
     author: authors.emeka,
     category: cat("business"),
     status: "published",
@@ -404,6 +445,7 @@ export const articles: Article[] = [
     excerpt:
       "A landmark education initiative targets gender disparity in science and technology enrolment across 19 northern states.",
     body: `<p>The Federal Ministry of Education has launched a ₦45 billion STEM scholarship programme targeting 10,000 girls across 19 northern states.</p>`,
+    featuredImage: articleFeaturedImages["stem-scholarship-northern-girls"],
     author: authors.fatima,
     category: cat("education"),
     status: "published",
@@ -423,6 +465,7 @@ export const articles: Article[] = [
     excerpt:
       "A decade of agricultural investment is finally yielding results as Nigeria approaches food self-sufficiency in staple grains.",
     body: `<p>The USDA has confirmed Nigeria's rice production reached 10 million metric tons in the 2025/2026 season, validating a decade of agricultural investment.</p>`,
+    featuredImage: articleFeaturedImages["nigeria-rice-production-record"],
     author: authors.chukwuemeka,
     category: cat("agriculture"),
     status: "published",
@@ -442,8 +485,7 @@ export const articles: Article[] = [
     excerpt:
       "Sources within Aso Rock confirm major portfolio realignments in a move analysts describe as a mid-term course correction ahead of 2027.",
     body: `<p>President Tinubu executed a surprise cabinet reshuffle at midnight, replacing four ministers and creating two new portfolios focused on digital economy and creative industries.</p>`,
-    featuredImage:
-      "https://picsum.photos/seed/orbit-politics/800/450",
+    featuredImage: articleFeaturedImages["tinubu-cabinet-reshuffle"],
     author: authors.adaeze,
     category: cat("politics"),
     status: "published",
@@ -469,8 +511,7 @@ export const articles: Article[] = [
 <p>Perhaps more consequential than the domestic impact is the refinery's emerging role as a regional energy supplier. Preliminary shipments of refined petroleum products have already reached Benin Republic, Togo, Ghana, Côte d'Ivoire, and Cameroon — a development ECOWAS officials have described as a "practical demonstration of African continental self-reliance."</p>
 <h3>West Africa Begins to Look Inward</h3>
 <p>Analysts warn that domestic pricing policy and pipeline infrastructure remain the critical bottlenecks for the refinery reaching full capacity. Without addressing these structural challenges, the refinery's transformative potential may be partially unrealised.</p>`,
-    featuredImage:
-      "https://picsum.photos/seed/orbit-energy/1200/675",
+    featuredImage: articleFeaturedImages["dangote-refinery-first-year"],
     imageCaption:
       "The Dangote Refinery complex in Lekki, Lagos — the largest single-train refinery in the world. | Credit: OrbitSphere Photo Desk",
     author: authors.adaeze,
@@ -520,6 +561,7 @@ export const articles: Article[] = [
     excerpt:
       "The proposed budget represents a 12% increase over 2025 allocations, with defence and education receiving the largest shares.",
     body: `<p>The National Assembly Budget Committee has recommended a ₦28 trillion budget for the 2026 fiscal year.</p>`,
+    featuredImage: articleFeaturedImages["nass-budget-2026-recommendation"],
     author: authors.emeka,
     category: cat("politics"),
     status: "published",
@@ -539,6 +581,7 @@ export const articles: Article[] = [
     excerpt:
       "Sources close to both camps confirm exploratory talks on a unified opposition platform for the next general election.",
     body: `<p>In a development that has sent shockwaves through Nigeria's political landscape, Peter Obi and Atiku Abubakar have held exploratory talks about forming a unified opposition platform.</p>`,
+    featuredImage: articleFeaturedImages["obi-atiku-alliance-2027"],
     author: authors.adaeze,
     category: cat("politics"),
     status: "published",
@@ -559,6 +602,7 @@ export const articles: Article[] = [
       "Three decades of economic half-measures have left Nigeria perpetually on the cusp of transformation. This time, something feels different — but is it enough?",
     body: `<p>Three decades of economic half-measures have left Nigeria perpetually on the cusp of transformation. This time, something feels different — but is it enough?</p>
 <p>The current reform momentum, while promising, must be sustained through institutional strengthening, not merely policy announcements. Without independent regulatory bodies and transparent procurement processes, even the best-intentioned reforms will falter.</p>`,
+    featuredImage: articleFeaturedImages["nigeria-structural-reform-opinion"],
     author: authors.ngozi,
     category: cat("opinion"),
     status: "published",
@@ -578,6 +622,7 @@ export const articles: Article[] = [
     excerpt:
       "When the continent's principal multilateral body fails to act on a humanitarian catastrophe in its own backyard, the entire continental project is called into question.",
     body: `<p>When the continent's principal multilateral body fails to act on a humanitarian catastrophe in its own backyard, the entire continental project is called into question.</p>`,
+    featuredImage: articleFeaturedImages["au-silence-sudan-analysis"],
     author: authors.babatunde,
     category: cat("opinion"),
     status: "published",
@@ -597,6 +642,7 @@ export const articles: Article[] = [
     excerpt:
       "A generation shaped by japa, hardship, and social media is quietly rewriting the rules of ambition — and the culture is struggling to keep pace.",
     body: `<p>A generation shaped by japa, hardship, and social media is quietly rewriting the rules of ambition — and the culture is struggling to keep pace.</p>`,
+    featuredImage: articleFeaturedImages["nigerian-millennials-quiet-ambition"],
     author: authors.chisom,
     category: cat("lifestyle"),
     status: "published",
@@ -616,6 +662,7 @@ export const articles: Article[] = [
     excerpt:
       "Victor Osimhen's move to Al-Hilal sets a new benchmark for African footballers in the global transfer market.",
     body: `<p>Victor Osimhen has completed a record-breaking transfer to Al-Hilal, becoming the most expensive African footballer in history.</p>`,
+    featuredImage: articleFeaturedImages["osimhen-saudi-record-transfer"],
     author: authors.fatima,
     category: cat("sports"),
     status: "published",
@@ -635,6 +682,7 @@ export const articles: Article[] = [
     excerpt:
       "Flutterwave, Andela, and others are pivoting toward profitability as venture capital funding tightens across Africa.",
     body: `<p>Nigeria's tech unicorns are navigating a post-hype landscape with renewed focus on unit economics and sustainable growth.</p>`,
+    featuredImage: articleFeaturedImages["nigeria-tech-unicorns-rebuilding"],
     author: authors.chukwuemeka,
     category: cat("technology"),
     status: "published",
@@ -656,8 +704,9 @@ export const videoStories: VideoStory[] = [
     duration: "4:32",
     channel: "OrbitSphere TV",
     publishedAt: "2026-05-27T06:00:00Z",
-    thumbnail:
-      "https://picsum.photos/seed/orbit-video1/600/338",
+    thumbnail: videoThumbnails["1"],
+    playbackUrl: "https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ",
+    playbackType: "youtube",
   },
   {
     id: "2",
@@ -667,8 +716,9 @@ export const videoStories: VideoStory[] = [
     duration: "7:18",
     channel: "OrbitSphere TV",
     publishedAt: "2026-05-27T04:00:00Z",
-    thumbnail:
-      "https://picsum.photos/seed/orbit-video2/600/338",
+    thumbnail: videoThumbnails["2"],
+    playbackUrl: "https://www.youtube-nocookie.com/embed/ScMzIvxBSi4",
+    playbackType: "youtube",
   },
   {
     id: "3",
@@ -677,8 +727,9 @@ export const videoStories: VideoStory[] = [
     duration: "3:54",
     channel: "OrbitSphere Sports",
     publishedAt: "2026-05-27T03:00:00Z",
-    thumbnail:
-      "https://picsum.photos/seed/orbit-video3/600/338",
+    thumbnail: videoThumbnails["3"],
+    playbackUrl: "https://www.youtube-nocookie.com/embed/EngW7tLk6R8",
+    playbackType: "youtube",
   },
   {
     id: "4",
@@ -687,8 +738,9 @@ export const videoStories: VideoStory[] = [
     duration: "11:02",
     channel: "Investigative Desk",
     publishedAt: "2026-05-26T12:00:00Z",
-    thumbnail:
-      "https://picsum.photos/seed/orbit-video4/600/338",
+    thumbnail: videoThumbnails["4"],
+    playbackUrl: "https://www.youtube-nocookie.com/embed/LXb3EKWsInQ",
+    playbackType: "youtube",
   },
 ];
 

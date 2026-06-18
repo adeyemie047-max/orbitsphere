@@ -7,6 +7,7 @@ import {
   getLatestArticles,
   getTrendingArticles,
   videoStories,
+  articleFeaturedImages,
 } from "@/lib/data";
 import type { Article } from "@/lib/types";
 import { UserRole } from "@prisma/client";
@@ -50,7 +51,8 @@ function mockToPublic(article: Article): PublicArticle {
     slug: article.slug,
     excerpt: article.excerpt,
     body: article.body,
-    featuredImage: article.featuredImage ?? null,
+    featuredImage:
+      articleFeaturedImages[article.slug] ?? article.featuredImage ?? "",
     author: {
       id: article.author.id,
       name: article.author.name,
@@ -89,6 +91,13 @@ function buildCategorySection(
   };
 }
 
+function getMockOpinionArticles(limit = 4): PublicArticle[] {
+  return getArticlesByCategory("opinion")
+    .concat(getArticlesByCategory("lifestyle").slice(0, 1))
+    .slice(0, limit)
+    .map(mockToPublic);
+}
+
 function getMockHomepageData(): HomepageData {
   const featured = mockToPublic(getFeaturedArticle());
   const latest = getLatestArticles(6).map(mockToPublic);
@@ -110,10 +119,7 @@ function getMockHomepageData(): HomepageData {
     politics: buildCategorySection("politics"),
     business: buildCategorySection("business"),
     technology: buildCategorySection("technology"),
-    opinion: getArticlesByCategory("opinion")
-      .concat(getArticlesByCategory("lifestyle").slice(0, 1))
-      .slice(0, 3)
-      .map(mockToPublic),
+    opinion: getMockOpinionArticles(4),
     videos: videoStories,
     ads: { banner: null, rectangle: null },
   };
@@ -176,10 +182,14 @@ async function fetchHomepageData(): Promise<HomepageData> {
     .filter((a) => a.id !== featured.id && a.featuredImage)
     .slice(0, 2);
 
-  const opinion =
+  let opinion =
     opinionArticles.length >= 3
       ? opinionArticles
-      : [...opinionArticles, ...lifestyleArticles].slice(0, 3);
+      : [...opinionArticles, ...lifestyleArticles].slice(0, 4);
+
+  if (opinion.length === 0) {
+    opinion = getMockOpinionArticles(4);
+  }
 
   return {
     source: "database",

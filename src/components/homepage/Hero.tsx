@@ -1,9 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
+import EditorialImage from "@/components/ui/EditorialImage";
 import type { PublicArticle } from "@/lib/articles-db";
-import { formatRelativeTime } from "@/lib/utils";
-import Avatar from "@/components/ui/Avatar";
-import { CategoryBadge } from "@/components/ui/Badge";
+import { formatRelativeTime, cn } from "@/lib/utils";
 
 interface HeroProps {
   featured: PublicArticle;
@@ -11,89 +9,101 @@ interface HeroProps {
 }
 
 export default function Hero({ featured, subArticles }: HeroProps) {
-  return (
-    <section className="bg-[var(--ds-hero-bg)] pb-8 sm:pb-10">
-      <div className="container-main pt-6 sm:pt-8">
-        <div className="column-rule mb-5 sm:mb-6 text-center border-b border-[var(--ds-hero-border)]">
-          <p className="font-ui text-[10px] font-bold tracking-[0.22em] uppercase text-[var(--ds-hero-subtle)]">
-            Front Page
-          </p>
-        </div>
+  const sidebarStories = subArticles.slice(0, 3);
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5 sm:gap-6 fade-up">
-          <Link href={`/article/${featured.slug}`} className="group xl:row-span-2">
-            <div className="relative overflow-hidden bg-black h-[280px] sm:h-[400px] xl:h-[520px]">
-              {featured.featuredImage && (
-                <Image
+  return (
+    <section className="hero-section hero-entrance">
+      <div className="container-main py-6 sm:py-8 lg:py-10">
+        <div className="hero-frame grid grid-cols-1 lg:grid-cols-[1fr_minmax(280px,420px)] min-h-0 lg:min-h-[480px] xl:min-h-[540px]">
+          <div className="hero-entrance__copy flex flex-col justify-between px-5 py-8 sm:px-8 lg:px-10 lg:py-12 xl:py-14 border-b lg:border-b-0 lg:border-r border-[var(--ds-border)]">
+            <div>
+              <div
+                className={cn(
+                  "story-kicker mb-5 sm:mb-6",
+                  featured.isBreaking && "story-kicker--breaking"
+                )}
+              >
+                <span className="story-kicker-dot" aria-hidden />
+                {featured.isBreaking ? "Breaking" : "Lead story"} · {featured.category.name}
+              </div>
+              <Link href={`/article/${featured.slug}`} className="group block">
+                <h1 className="font-serif text-[clamp(1.875rem,5.5vw,4rem)] leading-[1.06] tracking-[-0.035em] font-normal text-[var(--ds-ink)] mb-4 sm:mb-5 story-link-hover pb-1">
+                  {featured.title}
+                </h1>
+              </Link>
+              <p className="reading-prose text-[var(--ds-text-secondary)] leading-[1.72] max-w-2xl mb-6 sm:mb-8">
+                {featured.excerpt}
+              </p>
+              <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-3">
+                <p className="text-[13px] text-[var(--ds-text-muted)]">
+                  By{" "}
+                  <strong className="text-[var(--ds-ink)] font-semibold">
+                    {featured.author.name}
+                  </strong>
+                  {featured.author.role ? ` · ${featured.author.role}` : ""}
+                </p>
+                <span className="hidden sm:inline text-[var(--ds-border)]">|</span>
+                <p className="text-[13px] text-[var(--ds-text-muted)]">
+                  {formatRelativeTime(featured.publishedAt)} · {featured.readTime ?? 5} min read
+                </p>
+              </div>
+              <Link href={`/article/${featured.slug}`} className="btn-read mt-6 sm:mt-8">
+                Read full story
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
+
+          <aside className="hero-entrance__media flex flex-col min-h-0">
+            <Link
+              href={`/article/${featured.slug}`}
+              className="group relative flex-1 min-h-[220px] sm:min-h-[260px] lg:min-h-[300px] hero-image-wrap"
+            >
+              {featured.featuredImage ? (
+                <EditorialImage
                   src={featured.featuredImage}
                   alt={featured.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   priority
-                  sizes="(max-width: 1280px) 100vw, 70vw"
+                  sizes="(max-width: 1024px) 100vw, 420px"
                 />
+              ) : (
+                <div className="absolute inset-0 bg-[var(--ds-surface-2)]" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-              <div className="absolute top-4 left-4 font-ui text-[10px] tracking-widest uppercase text-white bg-[var(--ds-accent)] px-2.5 py-1">
-                Lead Story
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-7 z-10">
-                <CategoryBadge category={featured.category} breaking={featured.isBreaking} />
-                <h1 className="font-serif text-[22px] sm:text-[26px] xl:text-[36px] font-black leading-[1.15] text-white my-2 sm:my-3 tracking-tight group-hover:underline decoration-2 underline-offset-4">
-                  {featured.title}
-                </h1>
-                <p className="text-[15px] text-[var(--ds-hero-muted)] leading-[1.65] mb-4 max-w-xl line-clamp-2 font-serif">
-                  {featured.excerpt}
-                </p>
-                <div className="flex items-center gap-4 flex-wrap border-t border-[var(--ds-hero-border)] pt-3">
-                  <div className="flex items-center gap-2">
-                    <Avatar initials={featured.author.initials} />
-                    <span className="font-ui text-[12px] text-[var(--ds-hero-muted)]">
-                      {featured.author.name}
-                    </span>
-                  </div>
-                  <span className="font-ui text-[11px] text-[var(--ds-hero-subtle)]">
-                    {formatRelativeTime(featured.publishedAt)} · {featured.readTime ?? 5} min
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Link>
+              <span className="absolute bottom-4 left-4 z-10 text-[10px] font-bold tracking-[0.12em] uppercase text-[var(--ds-badge-fg)] bg-[var(--ds-badge-bg)]/90 backdrop-blur-sm px-2.5 py-1 rounded-[var(--radius-sm)]">
+                {featured.category.name}
+              </span>
+            </Link>
 
-          <div className="flex flex-col bg-[var(--ds-hero-panel)] border border-[var(--ds-hero-border)] divide-y divide-[var(--ds-hero-border)] fade-up-2">
-            {subArticles.map((article) => (
-              <Link
-                key={article.id}
-                href={`/article/${article.slug}`}
-                className="group grid grid-cols-[100px_1fr] sm:grid-cols-[110px_1fr] bg-transparent hover:bg-[var(--ds-hero-panel)] transition-colors min-h-[120px] sm:min-h-[130px]"
-              >
-                {article.featuredImage ? (
-                  <div className="relative h-full border-r border-[var(--ds-hero-border)]">
-                    <Image
-                      src={article.featuredImage}
-                      alt={article.title}
-                      fill
-                      className="object-cover"
-                      sizes="110px"
-                    />
-                  </div>
-                ) : (
-                  <div className="bg-[var(--ds-hero-panel)] border-r border-[var(--ds-hero-border)] flex items-center justify-center font-ui text-[9px] text-[var(--ds-hero-subtle)] tracking-widest uppercase">
-                    Photo
-                  </div>
-                )}
-                <div className="p-3 sm:p-3.5 flex flex-col justify-center gap-1">
-                  <CategoryBadge category={article.category} />
-                  <div className="font-serif text-[14px] font-bold leading-[1.35] text-[var(--ds-hero-fg)] group-hover:text-[var(--ds-accent-light)] line-clamp-3">
-                    {article.title}
-                  </div>
-                  <div className="font-ui text-[10px] text-[var(--ds-accent-light)] uppercase tracking-wide font-semibold">
-                    {formatRelativeTime(article.publishedAt)}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+            {sidebarStories.length > 0 && (
+              <div className="border-t border-[var(--ds-border)] bg-[var(--ds-hero-panel)]">
+                <p className="px-5 sm:px-6 pt-4 sm:pt-5 pb-2 text-[10px] font-bold tracking-[0.12em] uppercase text-[var(--ds-text-muted)]">
+                  Also in the news
+                </p>
+                {sidebarStories.map((article, index) => (
+                  <Link
+                    key={article.id}
+                    href={`/article/${article.slug}`}
+                    className={cn(
+                      "group block px-5 sm:px-6 py-3.5 sm:py-4 border-l-2 border-transparent hover:border-[var(--ds-accent)] hover:bg-[var(--ds-hover-overlay)] transition-all",
+                      index < sidebarStories.length - 1 && "border-b border-[var(--ds-border)]"
+                    )}
+                  >
+                    <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--ds-text-muted)] mb-1.5">
+                      {article.category.name}
+                    </p>
+                    <h2 className="font-serif text-[15px] sm:text-base leading-snug text-[var(--ds-ink)] line-clamp-2 group-hover:text-[var(--ds-ink)]">
+                      {article.title}
+                    </h2>
+                    <p className="text-xs text-[var(--ds-text-muted)] mt-1.5">
+                      {formatRelativeTime(article.publishedAt)}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </aside>
         </div>
       </div>
     </section>

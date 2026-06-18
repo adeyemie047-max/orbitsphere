@@ -1,5 +1,6 @@
 import { ArticleStatus, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
+import { articleFeaturedImages } from "@/lib/data";
 
 export const articleInclude = {
   author: {
@@ -40,7 +41,8 @@ export function serializeArticle(article: ArticleWithRelations) {
     slug: article.slug,
     excerpt: article.excerpt,
     body: article.body,
-    featuredImage: article.featuredImage,
+    featuredImage:
+      articleFeaturedImages[article.slug] ?? article.featuredImage ?? null,
     author: {
       id: article.author.id,
       name: article.author.fullName ?? "Unknown",

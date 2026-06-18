@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
+import CategoryIcon from "@/components/ui/CategoryIcon";
 import ArticleCard from "@/components/article/ArticleCard";
 import MiniCard from "@/components/article/MiniCard";
 import Button from "@/components/ui/Button";
-import NewsletterForm from "@/components/shared/NewsletterForm";
+import NewsletterCompactForm from "@/components/shared/NewsletterCompactForm";
 import JsonLd from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/json-ld";
 import {
@@ -56,7 +57,7 @@ export default async function CategoryPage({
   if (!featured && gridArticles.length === 0) {
     return (
       <div className="container-main py-20 text-center">
-        <span className="text-4xl mb-4 block">{category.icon}</span>
+        <CategoryIcon name={category.icon} size={20} className="mx-auto mb-4 text-[var(--ds-text-muted)]" />
         <h1 className="section-title mb-4">{category.name}</h1>
         <p className="text-text-secondary">No articles in this category yet.</p>
       </div>
@@ -78,31 +79,24 @@ export default async function CategoryPage({
           ),
         ]}
       />
-      <div className="container-main py-8 sm:py-12 lg:py-16">
-      <header className="mb-8 sm:mb-12">
+      <div className="container-main py-8 sm:py-10 lg:py-14">
+      <header className="page-header">
         <div className="gold-rule" />
-        <div className="flex items-start gap-4 mt-2">
-          <span className="text-4xl" aria-hidden>
-            {category.icon}
-          </span>
-          <div>
-            <h1 className="font-serif text-[28px] sm:text-[36px] md:text-[48px] font-black text-foreground mb-3">
-              {category.name}
-            </h1>
-            {category.description && (
-              <p className="text-[15px] text-text-muted max-w-xl leading-[1.7]">
-                {category.description}
-              </p>
-            )}
-          </div>
-        </div>
+        <p className="page-header__eyebrow">
+          <CategoryIcon name={category.icon} size={14} className="text-[var(--ds-text-muted)]" />
+          <span>Section</span>
+        </p>
+        <h1 className="page-header__title">{category.name}</h1>
+        {category.description && (
+          <p className="page-header__desc">{category.description}</p>
+        )}
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-8 lg:gap-12">
-        <div>
-          {featured && page === 1 && <ArticleCard article={featured} />}
+      <div className="page-with-sidebar">
+        <div className="page-with-sidebar__content">
+          {featured && page === 1 && <ArticleCard article={featured} featured />}
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${featured && page === 1 ? "mt-8" : ""}`}
+            className={`editorial-grid editorial-grid--lift reveal-stagger grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 ${featured && page === 1 ? "mt-8" : ""}`}
           >
             {gridArticles.map((article) => (
               <ArticleCard key={article.id} article={article} />
@@ -111,7 +105,7 @@ export default async function CategoryPage({
 
           {pagination.totalPages > 1 && (
             <nav
-              className="flex items-center justify-center gap-3 mt-12"
+              className="flex flex-wrap items-center justify-center gap-3 mt-12"
               aria-label="Pagination"
             >
               {page > 1 && (
@@ -139,27 +133,23 @@ export default async function CategoryPage({
           )}
         </div>
 
-        <aside>
-          <div className="bg-surface border border-border rounded-lg sm:rounded-[14px] p-5 sm:p-6 mb-6 xl:sticky xl:top-24">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-5 pb-3 border-b border-border">
-              Trending in {category.name}
-            </h3>
+        <aside className="page-with-sidebar__rail">
+          <div className="sidebar-panel">
+            <h3 className="sidebar-panel__title">Trending in {category.name}</h3>
             {trending.map((article) => (
               <MiniCard key={article.id} article={article} showCategory={false} />
             ))}
           </div>
 
           {popularTags.length > 0 && (
-            <div className="bg-surface border border-border rounded-lg sm:rounded-[14px] p-5 sm:p-6 mb-6">
-              <h3 className="font-serif text-lg font-bold text-foreground mb-4 pb-3 border-b border-border">
-                Popular Tags
-              </h3>
+            <div className="sidebar-panel">
+              <h3 className="sidebar-panel__title">Popular Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {popularTags.map((tag) => (
                   <Link
                     key={tag.slug}
                     href={`/search?q=${encodeURIComponent(tag.name)}`}
-                    className="font-ui text-[11px] font-medium px-3 py-1.5 rounded-full bg-surface-2 border border-border text-text-secondary hover:text-[var(--ds-accent)] hover:border-[var(--ds-accent)] transition-all"
+                    className="font-ui text-[11px] font-medium px-3 py-1.5 rounded-full bg-surface-2 border border-border text-text-secondary hover:text-[var(--ds-ink)] hover:border-[var(--ds-ink)] transition-all"
                   >
                     {tag.name}
                   </Link>
@@ -168,14 +158,12 @@ export default async function CategoryPage({
             </div>
           )}
 
-          <div className="bg-surface-2 border border-border rounded-lg sm:rounded-[14px] p-5 sm:p-6">
-            <h3 className="font-serif text-lg font-bold text-[var(--ds-accent)] mb-4">
-              Newsletter
-            </h3>
+          <div className="sidebar-panel sidebar-panel--accent">
+            <h3 className="sidebar-panel__title">Newsletter</h3>
             <p className="text-[13px] text-text-secondary leading-[1.6] mb-4">
               Get the best of {category.name} delivered to your inbox.
             </p>
-            <NewsletterForm compact />
+            <NewsletterCompactForm />
           </div>
         </aside>
       </div>

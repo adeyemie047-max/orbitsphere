@@ -1,11 +1,17 @@
 import { z } from "zod";
 
+const imageRefSchema = z.union([
+  z.string().url(),
+  z.string().regex(/^\//, "Must be an absolute URL or site path"),
+  z.null(),
+]);
+
 export const articleBodySchema = z.object({
   title: z.string().min(1, "Title is required").max(500),
   slug: z.string().max(500).optional(),
   excerpt: z.string().max(2000).optional().nullable(),
   body: z.string().optional().nullable(),
-  featuredImage: z.union([z.string().url(), z.null()]).optional(),
+  featuredImage: imageRefSchema.optional(),
   categoryId: z.string().uuid("Valid category is required"),
   status: z.enum(["draft", "published", "scheduled", "archived"]).optional(),
   scheduledAt: z.string().datetime().optional().nullable(),

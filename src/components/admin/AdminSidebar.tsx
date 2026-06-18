@@ -20,9 +20,7 @@ export default function AdminSidebar({ role, userName, navItems }: AdminSidebarP
     <>
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-surface border-b border-white/6">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Logo size="sm" />
-        </Link>
+        <Logo size="sm" href="/dashboard" />
         <button
           onClick={() => setMobileOpen(true)}
           className="w-10 h-10 rounded-lg bg-white/5 border border-white/6 flex items-center justify-center text-text-secondary"
@@ -46,7 +44,7 @@ export default function AdminSidebar({ role, userName, navItems }: AdminSidebarP
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-surface border-r border-white/6 overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/6">
               <div>
-                <Logo size="sm" />
+                <Logo size="sm" href="/dashboard" />
                 <span className="block font-[family-name:var(--font-ui)] text-[9px] font-semibold tracking-[0.22em] uppercase text-text-muted mt-1 ml-11">
                   Newsroom
                 </span>
@@ -78,9 +76,7 @@ export default function AdminSidebar({ role, userName, navItems }: AdminSidebarP
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-60 bg-surface border-r border-white/6 sticky top-0 h-screen overflow-y-auto shrink-0">
         <div className="px-6 py-6 border-b border-white/6">
-          <Link href="/dashboard">
-            <Logo size="sm" />
-          </Link>
+          <Logo size="sm" href="/dashboard" />
           <span className="block font-[family-name:var(--font-ui)] text-[9px] font-semibold tracking-[0.22em] uppercase text-text-muted mt-1 ml-11">
             Newsroom · {userName?.split(" ")[0] ?? "Editor"}
           </span>

@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, DM_Serif_Display, Poppins } from "next/font/google";
+import { Inter, Instrument_Serif, Plus_Jakarta_Sans, Source_Serif_4 } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
-import PublicSiteShell from "@/components/layout/PublicSiteShell";
-import BreakingTicker from "@/components/layout/BreakingTicker";
-import JsonLd from "@/components/seo/JsonLd";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/json-ld";
 import "./globals.css";
 
 const inter = Inter({
@@ -14,23 +10,23 @@ const inter = Inter({
   display: "swap",
 });
 
-const playfair = Playfair_Display({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-plus-jakarta",
   display: "swap",
 });
 
-const dmSerif = DM_Serif_Display({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
-  variable: "--font-dm-serif",
+  variable: "--font-instrument-serif",
   display: "swap",
 });
 
-const poppins = Poppins({
+/** Long-form reading — industry-standard editorial body face */
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-source-serif",
   display: "swap",
 });
 
@@ -63,6 +59,11 @@ export const metadata: Metadata = {
     title: "OrbitSphere Newspaper",
     description: "The Future of African Journalism",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export default function RootLayout({
@@ -72,16 +73,13 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-NG"
       suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable} ${dmSerif.variable} ${poppins.variable}`}
+      className={`${inter.variable} ${plusJakarta.variable} ${instrumentSerif.variable} ${sourceSerif.variable}`}
     >
       <body>
-        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <ThemeProvider>
-          <AuthProvider>
-            <PublicSiteShell ticker={<BreakingTicker />}>{children}</PublicSiteShell>
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

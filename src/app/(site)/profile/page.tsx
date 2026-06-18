@@ -5,6 +5,7 @@ import { getCategoriesForEditor } from "@/lib/articles-admin";
 import ProfileForm from "@/components/reader/ProfileForm";
 import FeedPreferences from "@/components/reader/FeedPreferences";
 import PushNotificationPrompt from "@/components/reader/PushNotificationPrompt";
+import PremiumStatusCard from "@/components/premium/PremiumStatusCard";
 
 export const metadata = {
   title: "Your Profile",
@@ -28,6 +29,7 @@ export default async function ProfilePage() {
       </p>
 
       <PushNotificationPrompt />
+      <PremiumStatusCard userId={session.userId} />
       <ProfileForm profile={profile} />
       <FeedPreferences initial={preferences} categories={categories} />
     </div>

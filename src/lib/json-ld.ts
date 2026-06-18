@@ -1,30 +1,39 @@
 import type { ArticleDetail, PublicArticle } from "@/lib/articles-db";
+import type { SiteBrandingData } from "@/lib/site-branding";
+import { DEFAULT_SITE_BRANDING } from "@/lib/site-branding";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://orbitsphere.com";
 
-export function organizationJsonLd() {
+function siteName(branding: SiteBrandingData) {
+  return `${branding.siteNamePrimary}${branding.siteNameAccent}`;
+}
+
+export function organizationJsonLd(branding: SiteBrandingData = DEFAULT_SITE_BRANDING) {
+  const sameAs = [
+    branding.twitterUrl,
+    branding.facebookUrl,
+    branding.linkedinUrl,
+    branding.youtubeUrl,
+    branding.instagramUrl,
+  ].filter(Boolean) as string[];
+
   return {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
-    name: "OrbitSphere",
+    name: siteName(branding),
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
-    sameAs: [
-      "https://twitter.com/orbitsphere",
-      "https://facebook.com/orbitsphere",
-      "https://linkedin.com/company/orbitsphere",
-    ],
-    description:
-      "Nigeria's premier digital newspaper — fearless, intelligent journalism for Africa.",
+    logo: branding.logoUrl ?? `${SITE_URL}/logo.png`,
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+    description: branding.seoDescription,
   };
 }
 
-export function websiteJsonLd() {
+export function websiteJsonLd(branding: SiteBrandingData = DEFAULT_SITE_BRANDING) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "OrbitSphere",
+    name: siteName(branding),
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
@@ -52,7 +61,10 @@ export function breadcrumbJsonLd(
   };
 }
 
-export function newsArticleJsonLd(article: ArticleDetail) {
+export function newsArticleJsonLd(
+  article: ArticleDetail,
+  branding: SiteBrandingData = DEFAULT_SITE_BRANDING
+) {
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -67,10 +79,10 @@ export function newsArticleJsonLd(article: ArticleDetail) {
     },
     publisher: {
       "@type": "Organization",
-      name: "OrbitSphere",
+      name: siteName(branding),
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: branding.logoUrl ?? `${SITE_URL}/logo.png`,
       },
     },
     mainEntityOfPage: `${SITE_URL}/article/${article.slug}`,

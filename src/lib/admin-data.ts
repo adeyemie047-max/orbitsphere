@@ -51,6 +51,14 @@ export const adminNavItems: AdminNavItem[] = [
     roles: ["admin", "editor"],
   },
   {
+    id: "ads",
+    label: "Advertisements",
+    href: "/dashboard/ads",
+    group: "engage",
+    icon: "ads",
+    roles: ["admin"],
+  },
+  {
     id: "settings",
     label: "Settings",
     href: "/dashboard/settings",

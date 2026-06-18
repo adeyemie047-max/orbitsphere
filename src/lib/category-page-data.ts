@@ -5,6 +5,7 @@ import {
   getCategoryBySlug,
   getTrendingArticles,
   articles as mockArticles,
+  articleFeaturedImages,
 } from "@/lib/data";
 import type { Article, CategorySlug } from "@/lib/types";
 import {
@@ -27,20 +28,7 @@ const MOCK_AI: Record<string, string[]> = Object.fromEntries(
     .map((a) => [a.slug, a.aiSummary!])
 );
 
-const CATEGORY_ICONS: Record<string, string> = {
-  landmark: "🏛️",
-  "building-2": "🏙️",
-  "trending-up": "📈",
-  cpu: "💻",
-  "graduation-cap": "🎓",
-  wheat: "🌾",
-  music: "🎵",
-  trophy: "🏆",
-  "message-square": "💬",
-  heart: "✨",
-  church: "🕌",
-  newspaper: "📰",
-};
+import { resolveCategoryIconKey } from "@/components/ui/CategoryIcon";
 
 export type CategoryPageData = {
   source: "database" | "mock";
@@ -71,7 +59,8 @@ function mockToPublic(article: Article): PublicArticle {
     slug: article.slug,
     excerpt: article.excerpt,
     body: article.body,
-    featuredImage: article.featuredImage ?? null,
+    featuredImage:
+      articleFeaturedImages[article.slug] ?? article.featuredImage ?? "",
     author: {
       id: article.author.id,
       name: article.author.name,
@@ -132,7 +121,7 @@ function getMockCategoryPage(slug: string, page: number): CategoryPageData | nul
       name: category.name,
       slug: category.slug,
       description: category.description,
-      icon: CATEGORY_ICONS[category.slug] ?? "📰",
+      icon: resolveCategoryIconKey(category.slug),
       color: category.color,
     },
     featured,
@@ -177,7 +166,7 @@ async function fetchCategoryPage(
       name: category.name,
       slug: category.slug,
       description: category.description,
-      icon: CATEGORY_ICONS[category.icon ?? ""] ?? "📰",
+      icon: resolveCategoryIconKey(category.slug, category.icon),
       color: category.color,
     },
     featured,

@@ -71,3 +71,45 @@ export async function updateAd(
 export async function getAdById(id: string) {
   return db.advertisement.findUnique({ where: { id } });
 }
+
+export async function deleteAd(id: string) {
+  return db.advertisement.delete({ where: { id } });
+}
+
+export async function listAdvertiseInquiries() {
+  const rows = await db.advertiseInquiry.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    company: row.company,
+    phone: row.phone,
+    budget: row.budget,
+    message: row.message,
+    createdAt: row.createdAt.toISOString(),
+  }));
+}
+
+export async function createAdvertiseInquiry(input: {
+  name: string;
+  email: string;
+  company?: string | null;
+  phone?: string | null;
+  budget?: string | null;
+  message: string;
+}) {
+  return db.advertiseInquiry.create({
+    data: {
+      name: input.name,
+      email: input.email.toLowerCase(),
+      company: input.company ?? null,
+      phone: input.phone ?? null,
+      budget: input.budget ?? null,
+      message: input.message,
+    },
+  });
+}

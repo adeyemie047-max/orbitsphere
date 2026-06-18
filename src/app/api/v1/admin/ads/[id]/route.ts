@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AdPlacement } from "@prisma/client";
-import { getAdById, updateAd } from "@/lib/admin-ads";
+import { deleteAd, getAdById, updateAd } from "@/lib/admin-ads";
 import { adUpdateSchema } from "@/lib/admin-schemas";
 import { isEditorialSession } from "@/lib/api-auth";
 import { parseJsonBody, requireAdmin } from "@/lib/api-admin";
@@ -61,6 +61,29 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     revalidateTag("homepage");
     return NextResponse.json({ data: ad });
+  } catch {
+    return NextResponse.json(
+      { error: "Database unavailable" },
+      { status: 503 }
+    );
+  }
+}
+
+export async function DELETE(_request: NextRequest, context: RouteContext) {
+  const session = await requireAdmin();
+  if (!isEditorialSession(session)) return session;
+
+  const { id } = await context.params;
+
+  try {
+    const existing = await getAdById(id);
+    if (!existing) {
+      return NextResponse.json({ error: "Ad not found" }, { status: 404 });
+    }
+
+    await deleteAd(id);
+    revalidateTag("homepage");
+    return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(
       { error: "Database unavailable" },

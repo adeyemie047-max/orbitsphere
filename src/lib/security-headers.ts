@@ -11,7 +11,8 @@ export function buildContentSecurityPolicy(): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https: http:",
-    "media-src 'self' https:",
+    "media-src 'self' https: blob:",
+    "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
     "connect-src 'self' https: wss:",
     "worker-src 'self' blob:",
   ];

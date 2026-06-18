@@ -1,74 +1,75 @@
 import Link from "next/link";
-import Image from "next/image";
+import EditorialImage from "@/components/ui/EditorialImage";
 import type { PublicArticle } from "@/lib/articles-db";
 import { formatRelativeTime } from "@/lib/utils";
 import MiniCard from "@/components/article/MiniCard";
 import Button from "@/components/ui/Button";
-import { CategoryBadge } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 
 interface CategorySectionProps {
   category: PublicArticle["category"];
   featured: PublicArticle;
   articles: PublicArticle[];
+  alternate?: boolean;
 }
 
 export default function CategorySection({
   category,
   featured,
   articles,
+  alternate = false,
 }: CategorySectionProps) {
   return (
-    <section className="py-[60px] border-t border-white/6">
-      <div className="container-main">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="gold-rule" />
-            <h2 className="section-title">{category.name}</h2>
+    <section
+      className={cn(
+        "section-block border-b border-[var(--ds-border)] reveal-on-scroll",
+        alternate ? "reveal-delay-3" : "reveal-delay-2"
+      )}
+    >
+      <div className="container-main pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="section-label-row flex-1">
+            <h2 className="section-label">{category.name}</h2>
           </div>
-          <Button href={`/${category.slug}`} variant="outline" size="sm">
-            All {category.name} →
+          <Button href={`/${category.slug}`} variant="outline" size="sm" className="rounded-[2px] shrink-0">
+            View all
           </Button>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Link href={`/article/${featured.slug}`} className="group">
-            <div className="grid grid-cols-1 md:grid-cols-2 bg-surface border border-white/6 rounded-[14px] overflow-hidden hover:border-[rgba(212,175,55,0.25)] transition-all">
-              {featured.featuredImage ? (
-                <div className="relative aspect-[4/3]">
-                  <Image
+        <div className="editorial-grid editorial-grid--interactive editorial-grid--lift reveal-stagger grid-cols-1 lg:grid-cols-2">
+          <Link href={`/article/${featured.slug}`} className="group block min-w-0 border-b lg:border-b-0 lg:border-r border-[var(--ds-border)]">
+            <article className="overflow-hidden h-full flex flex-col bg-[var(--ds-surface)]">
+              {featured.featuredImage && (
+                <div className="relative aspect-[16/10] overflow-hidden card-image-shine">
+                  <EditorialImage
                     src={featured.featuredImage}
                     alt={featured.title}
                     fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 </div>
-              ) : (
-                <div className="aspect-[4/3] bg-gradient-to-br from-[#0d2040] to-[#1e3a55] flex items-center justify-center font-[family-name:var(--font-ui)] text-[10px] text-text-muted tracking-widest uppercase">
-                  Image
-                </div>
               )}
-              <div className="p-8 flex flex-col justify-center gap-3">
-                <CategoryBadge category={category} breaking={featured.isBreaking} />
-                <h3 className="font-[family-name:var(--font-serif)] text-[26px] font-black leading-[1.3] text-text-primary transition-colors group-hover:text-gold">
+              <div className="p-5 sm:p-6 flex flex-col flex-1 min-w-0 group-hover:bg-[rgba(10,10,10,0.03)] transition-colors">
+                <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--ds-text-muted)] mb-3">
+                  {category.name}
+                </p>
+                <h3 className="font-serif text-xl sm:text-2xl leading-tight text-[var(--ds-ink)] mb-2 line-clamp-3 story-link-hover pb-0.5">
                   {featured.title}
                 </h3>
-                <p className="text-sm text-text-secondary leading-[1.7] line-clamp-3">
+                <p className="text-sm text-[var(--ds-text-muted)] leading-relaxed line-clamp-2 mb-4 flex-1">
                   {featured.excerpt}
                 </p>
-                <div className="flex items-center gap-2.5 font-[family-name:var(--font-ui)] text-[11px] text-text-muted">
-                  <span>{formatRelativeTime(featured.publishedAt)}</span>
-                  <span className="w-[3px] h-[3px] rounded-full bg-text-muted" />
-                  <span>{featured.readTime ?? 5} min read</span>
-                </div>
-                <span className="inline-flex mt-2 font-[family-name:var(--font-ui)] text-xs font-semibold text-gold">
-                  Read More →
-                </span>
+                <p className="font-ui text-[11px] text-[var(--ds-text-muted)]">
+                  {formatRelativeTime(featured.publishedAt)} · {featured.readTime ?? 5} min
+                </p>
               </div>
-            </div>
+            </article>
           </Link>
-          <div>
-            {articles.map((article) => (
-              <MiniCard key={article.id} article={article} />
+          <div className="min-w-0 bg-[var(--ds-surface)]">
+            {articles.map((article, index) => (
+              <div key={article.id} className={index > 0 ? "border-t border-[var(--ds-border)]" : ""}>
+                <MiniCard article={article} />
+              </div>
             ))}
           </div>
         </div>

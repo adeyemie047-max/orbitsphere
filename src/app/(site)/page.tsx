@@ -1,29 +1,32 @@
 import AdUnit from "@/components/ads/AdUnit";
 import Hero from "@/components/homepage/Hero";
-import TrendingCarousel from "@/components/homepage/TrendingCarousel";
+import TrendingSection from "@/components/homepage/TrendingSection";
 import LatestNews from "@/components/homepage/LatestNews";
 import CategorySection from "@/components/homepage/CategorySection";
 import VideoSection from "@/components/homepage/VideoSection";
 import OpinionSection from "@/components/homepage/OpinionSection";
 import Newsletter from "@/components/homepage/Newsletter";
 import { getCachedHomepageData } from "@/lib/homepage-data";
+import { getSiteBranding } from "@/lib/site-branding";
 
 /** PRD §8.1 homepage — ISR every 60 seconds. */
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const data = await getCachedHomepageData();
+  const [data, branding] = await Promise.all([
+    getCachedHomepageData(),
+    getSiteBranding(),
+  ]);
 
   return (
     <>
       <Hero featured={data.featured} subArticles={data.subHero} />
+      <LatestNews articles={data.latest} />
+      <TrendingSection articles={data.trending} />
 
-      <div className="container-main py-6 flex justify-center">
+      <div className="ad-slot container-main">
         <AdUnit ad={data.ads.banner} placement="banner" />
       </div>
-
-      <TrendingCarousel articles={data.trending} />
-      <LatestNews articles={data.latest} />
 
       <CategorySection
         category={data.politics.category}
@@ -31,25 +34,20 @@ export default async function HomePage() {
         articles={data.politics.articles}
       />
 
-      <div className="container-main pb-8 flex justify-center lg:justify-end">
-        <AdUnit ad={data.ads.rectangle} placement="rectangle" />
-      </div>
-
       <CategorySection
         category={data.business.category}
         featured={data.business.featured}
         articles={data.business.articles}
+        alternate
       />
 
-      <CategorySection
-        category={data.technology.category}
-        featured={data.technology.featured}
-        articles={data.technology.articles}
-      />
+      <div className="ad-slot ad-slot--end container-main">
+        <AdUnit ad={data.ads.rectangle} placement="rectangle" />
+      </div>
 
       <VideoSection videos={data.videos} />
       <OpinionSection articles={data.opinion} />
-      <Newsletter />
+      <Newsletter branding={branding} />
     </>
   );
 }

@@ -6,7 +6,8 @@ import {
   CitizenSubmissionStatus,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { articles, categories } from "../src/lib/data";
+import { articles, categories, articleFeaturedImages } from "../src/lib/data";
+import { DEFAULT_SITE_BRANDING } from "../src/lib/site-branding";
 
 const prisma = new PrismaClient();
 const SEED_PASSWORD = "Password123!";
@@ -104,6 +105,8 @@ async function main() {
   console.log("Seeding OrbitSphere database…");
 
   await prisma.citizenSubmission.deleteMany();
+  await prisma.advertiseInquiry.deleteMany();
+  await prisma.premiumSubscription.deleteMany();
   await prisma.pollVote.deleteMany();
   await prisma.liveBlogEntry.deleteMany();
   await prisma.pushSubscription.deleteMany();
@@ -160,12 +163,12 @@ async function main() {
     )
   );
 
-  const authorByKey = Object.fromEntries(
-    AUTHORS.filter((author) => author.key !== "admin").map((author) => [
-      author.key,
-      authorRecords[AUTHORS.indexOf(author)],
-    ])
-  );
+  const authorByKey: Record<string, (typeof authorRecords)[number]> = {};
+  for (let i = 0; i < AUTHORS.length; i++) {
+    const author = AUTHORS[i];
+    if (author.key === "admin") continue;
+    authorByKey[author.key] = authorRecords[i];
+  }
 
   const tagCache = new Map<string, string>();
 
@@ -184,10 +187,15 @@ async function main() {
   }
 
   for (const article of articles) {
-    const authorKey =
-      AUTHOR_KEY_BY_MOCK_ID[article.author.id] ?? "emeka";
+    const authorKey = AUTHOR_KEY_BY_MOCK_ID[article.author.id] ?? "emeka";
     const author = authorByKey[authorKey];
     const category = categoryBySlug[article.category.slug];
+
+    if (!author || !category) {
+      throw new Error(
+        `Seed mapping failed for "${article.slug}" (author=${authorKey}, category=${article.category.slug})`
+      );
+    }
 
     const created = await prisma.article.create({
       data: {
@@ -195,7 +203,8 @@ async function main() {
         slug: article.slug,
         excerpt: article.excerpt,
         body: article.body,
-        featuredImage: article.featuredImage ?? null,
+        featuredImage:
+          articleFeaturedImages[article.slug] ?? article.featuredImage ?? null,
         authorId: author.id,
         categoryId: category.id,
         status: article.status as ArticleStatus,
@@ -388,6 +397,15 @@ async function main() {
       ],
     });
   }
+
+  await prisma.siteBranding.upsert({
+    where: { id: "default" },
+    update: {},
+    create: {
+      id: "default",
+      ...DEFAULT_SITE_BRANDING,
+    },
+  });
 
   console.log(
     `Done: ${categoryRecords.length} categories, ${authorRecords.length} users (${AUTHORS.length - 1} authors + admin), ${articles.length} articles, ${tagCache.size} tags.`

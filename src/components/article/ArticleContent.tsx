@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import EditorialImage from "@/components/ui/EditorialImage";
 import type { ArticleDetail, PublicArticle } from "@/lib/articles-db";
 import {
   AI_SUMMARY_DISCLAIMER,
@@ -14,7 +14,7 @@ import Avatar from "@/components/ui/Avatar";
 import { CategoryBadge } from "@/components/ui/Badge";
 import MiniCard from "@/components/article/MiniCard";
 import ArticleCard from "@/components/article/ArticleCard";
-import NewsletterForm from "@/components/shared/NewsletterForm";
+import NewsletterCompactForm from "@/components/shared/NewsletterCompactForm";
 import ShareButtons from "@/components/article/ShareButtons";
 import ReadAloud from "@/components/article/ReadAloud";
 import CommentsSection from "@/components/article/CommentsSection";
@@ -36,9 +36,9 @@ export default function ArticleContent({
   mostRead,
 }: ArticleContentProps) {
   return (
-    <div className="container-main py-8 sm:py-12 lg:py-16">
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-8 lg:gap-12">
-        <article className="fade-up min-w-0">
+    <div className="container-main py-8 sm:py-10 lg:py-14">
+      <div className="page-with-sidebar">
+        <article className="page-with-sidebar__content fade-up min-w-0">
           <nav className="flex gap-2 items-center mb-5" aria-label="Breadcrumb">
             <Link
               href="/"
@@ -66,11 +66,17 @@ export default function ArticleContent({
             className="mb-3.5"
           />
 
-          <h1 className="font-serif text-[26px] sm:text-[32px] md:text-[44px] font-black leading-[1.16] text-foreground mb-5 tracking-tight">
+          <h1 className="font-serif text-[28px] sm:text-[36px] md:text-[44px] font-normal leading-[1.12] text-foreground mb-4 tracking-[-0.03em]">
             {article.title}
           </h1>
 
-          <div className="flex items-center gap-3 sm:gap-5 py-4 sm:py-[18px] border-y border-border mb-6 sm:mb-7 flex-wrap">
+          {article.excerpt && (
+            <p className="reading-column text-[18px] sm:text-[20px] leading-[1.55] text-[var(--ds-text-secondary)] mb-6 font-normal">
+              {article.excerpt}
+            </p>
+          )}
+
+          <div className="flex items-center gap-3 sm:gap-5 py-4 sm:py-5 border-y border-border mb-6 sm:mb-8 flex-wrap">
             <div className="flex items-center gap-3">
               <Avatar initials={article.author.initials} size="md" />
               <div>
@@ -131,8 +137,8 @@ export default function ArticleContent({
 
           {article.featuredImage && (
             <>
-              <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-lg sm:rounded-[14px] overflow-hidden mb-2">
-                <Image
+              <div className="relative aspect-[16/9] sm:aspect-[21/9] rounded-[var(--radius-card)] overflow-hidden mb-2">
+                <EditorialImage
                   src={article.featuredImage}
                   alt={article.title}
                   fill
@@ -158,7 +164,7 @@ export default function ArticleContent({
 
           {article.aiSummary.length > 0 && (
             <div
-              className="bg-surface-2 border border-border rounded-lg sm:rounded-[14px] p-4 sm:p-6 mb-6 sm:mb-8"
+              className="bg-[var(--ds-surface-2)] border border-border rounded-[var(--radius-card)] p-4 sm:p-6 mb-6 sm:mb-8"
               role="note"
               aria-label={AI_SUMMARY_LABEL}
             >
@@ -226,11 +232,9 @@ export default function ArticleContent({
           />
         </article>
 
-        <aside className="min-w-0">
-          <div className="bg-surface border border-border rounded-lg sm:rounded-[14px] p-5 sm:p-6 mb-6 xl:sticky xl:top-24">
-            <h3 className="font-serif text-lg font-bold text-foreground mb-5 pb-3 border-b border-border">
-              Most Read Today
-            </h3>
+        <aside className="page-with-sidebar__rail">
+          <div className="sidebar-panel">
+            <h3 className="sidebar-panel__title">Most Read Today</h3>
             {mostRead.map((item) => (
               <MiniCard key={item.id} article={item} showCategory={false} />
             ))}
@@ -238,14 +242,12 @@ export default function ArticleContent({
 
           <PollWidget articleSlug={article.slug} />
 
-          <div className="bg-surface-2 border border-border rounded-lg sm:rounded-[14px] p-5 sm:p-6">
-            <h3 className="font-serif text-lg font-bold text-[var(--ds-accent)] mb-4">
-              Newsletter
-            </h3>
+          <div className="sidebar-panel sidebar-panel--accent">
+            <h3 className="sidebar-panel__title">Newsletter</h3>
             <p className="text-[13px] text-text-secondary leading-[1.6] mb-4">
               Get OrbitSphere&apos;s morning brief delivered to your inbox.
             </p>
-            <NewsletterForm compact />
+            <NewsletterCompactForm />
           </div>
         </aside>
       </div>
